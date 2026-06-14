@@ -138,11 +138,35 @@ class LocalStorageService {
 
   // --- Settings (SharedPreferences) ---
   String getThemeMode() {
-    return _prefs.getString('settings_theme') ?? 'dark';
+    return _prefs.getString('settings_theme') ?? 'system';
   }
 
   Future<void> setThemeMode(String mode) async {
     await _prefs.setString('settings_theme', mode);
+  }
+
+  String getLanguage() {
+    return _prefs.getString('settings_language') ?? 'en';
+  }
+
+  Future<void> setLanguage(String value) async {
+    await _prefs.setString('settings_language', value);
+  }
+
+  String getCustomApiKey() {
+    return _prefs.getString('settings_custom_api_key') ?? '';
+  }
+
+  Future<void> setCustomApiKey(String value) async {
+    await _prefs.setString('settings_custom_api_key', value);
+  }
+
+  bool getUseCustomApiKey() {
+    return _prefs.getBool('settings_use_custom_api_key') ?? false;
+  }
+
+  Future<void> setUseCustomApiKey(bool value) async {
+    await _prefs.setBool('settings_use_custom_api_key', value);
   }
 
   bool getCompactView() {

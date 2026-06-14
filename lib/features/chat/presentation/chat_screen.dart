@@ -6,7 +6,6 @@ import '../../../theme.dart';
 import '../../shared/providers/global_providers.dart';
 import '../domain/chat_model.dart';
 import '../../notes/domain/note_model.dart';
-import '../../profile/domain/profile_model.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
@@ -18,24 +17,14 @@ class ChatScreen extends ConsumerStatefulWidget {
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final TextEditingController _searchController = TextEditingController();
   
-  String? _activeSessionId;
   bool _isSending = false;
   List<String> _selectedNoteIds = [];
-  String _searchQuery = '';
-
-  final List<Map<String, dynamic>> _suggestionsWithIcons = [
-    {'text': 'Create an image', 'icon': Icons.image_outlined},
-    {'text': 'Write or edit', 'icon': Icons.edit_outlined},
-    {'text': 'Look something up', 'icon': Icons.language_rounded},
-  ];
 
   @override
   void dispose() {
     _inputController.dispose();
     _scrollController.dispose();
-    _searchController.dispose();
     super.dispose();
   }
 
@@ -51,13 +40,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
   }
 
-  void _startNewChat() {
-    setState(() {
-      _activeSessionId = null;
-      _selectedNoteIds = [];
-      _inputController.clear();
-    });
-  }
 
   Future<void> _sendMessage() async {
     final text = _inputController.text.trim();
@@ -66,9 +48,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final sessions = ref.read(chatSessionsProvider);
     final notes = ref.read(notesProvider);
     final ai = ref.read(aiServiceProvider);
+    final activeSessionId = ref.read(activeChatSessionIdProvider);
 
-    final activeSession = _activeSessionId != null
-        ? sessions.firstWhere((s) => s.id == _activeSessionId)
+    final activeSession = activeSessionId != null
+        ? sessions.firstWhere((s) => s.id == activeSessionId, orElse: () => ChatSession(id: '', title: '', updatedAt: 0, messages: [], noteIds: []))
         : null;
 
     final msgs = activeSession?.messages ?? [];
@@ -93,9 +76,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final apiMsgs = [...msgs, ChatMessage(role: 'user', content: userContent)];
 
     final now = DateTime.now().millisecondsSinceEpoch;
-    String sessId = _activeSessionId ?? const Uuid().v4();
+    String sessId = activeSessionId ?? const Uuid().v4();
 
-    if (_activeSessionId == null) {
+    if (activeSessionId == null) {
       // Create new session
       final title = text.length > 40 ? '${text.substring(0, 40)}…' : text;
       final newSession = ChatSession(
@@ -106,9 +89,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         noteIds: _selectedNoteIds,
       );
       await ref.read(chatSessionsProvider.notifier).saveSession(newSession);
-      setState(() {
-        _activeSessionId = sessId;
-      });
+      ref.read(activeChatSessionIdProvider.notifier).state = sessId;
     } else {
       // Update existing session
       final updatedSession = activeSession!.copyWith(
@@ -135,7 +116,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       );
       await ref.read(chatSessionsProvider.notifier).saveSession(finalSession);
     } catch (e) {
-      final errorMsg = ChatMessage(role: 'assistant', content: 'Sorry, I hit an error: ${e.toString().replaceFirst('Exception: ', '')}. Please try again.');
+      final errorMsg = ChatMessage(role: 'assistant', content: 'Sorry, I hit an error: ${e.toString().replaceFirst("Exception: ", "")}. Please try again.');
       final currentSessions = ref.read(chatSessionsProvider);
       final activeSessObj = currentSessions.firstWhere((s) => s.id == sessId);
       final errorSession = activeSessObj.copyWith(
@@ -146,107 +127,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       setState(() => _isSending = false);
       _scrollToBottom();
     }
-  }
-
-  void _openHistorySheet(BuildContext context, List<ChatSession> sessions) {
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Chat History',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.text),
-            ),
-            const SizedBox(height: 12),
-            if (sessions.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: Text('No conversations yet.', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
-                ),
-              )
-            else
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 280),
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: sessions.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final s = sessions[index];
-                    final isSelected = _activeSessionId == s.id;
-                    return InkWell(
-                      onTap: () {
-                        setState(() {
-                          _activeSessionId = s.id;
-                          _selectedNoteIds = List.from(s.noteIds);
-                        });
-                        Navigator.pop(context);
-                        _scrollToBottom();
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: isSelected ? AppColors.primary.withOpacity(0.3) : Colors.white.withOpacity(0.05),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    s.title,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '${s.messages.length} messages · ${s.noteIds.length} notes tagged',
-                                    style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.error),
-                              onPressed: () {
-                                ref.read(chatSessionsProvider.notifier).deleteSession(s.id);
-                                if (_activeSessionId == s.id) {
-                                  _startNewChat();
-                                }
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Chat deleted')),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
   }
 
   void _openNotePicker(BuildContext context, List<Note> notes) {
@@ -488,31 +368,39 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final activeSessionId = ref.watch(activeChatSessionIdProvider);
     final sessions = ref.watch(chatSessionsProvider);
     final notes = ref.watch(notesProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final activeSession = _activeSessionId != null
-        ? sessions.firstWhere((s) => s.id == _activeSessionId, orElse: () => ChatSession(id: '', title: '', updatedAt: 0, messages: [], noteIds: []))
+    final activeSession = activeSessionId != null
+        ? sessions.firstWhere((s) => s.id == activeSessionId, orElse: () => ChatSession(id: '', title: '', updatedAt: 0, messages: [], noteIds: []))
         : null;
 
     final msgs = activeSession?.messages ?? [];
     final selectedNotes = notes.where((n) => _selectedNoteIds.contains(n.id)).toList();
 
-    // Filter sessions for Drawer sidebar
-    final filteredSessions = sessions.where((s) {
-      if (_searchQuery.isEmpty) return true;
-      return s.title.toLowerCase().contains(_searchQuery.toLowerCase());
-    }).toList();
+    // Listen to active session changes to load notes and scroll to bottom
+    ref.listen<String?>(activeChatSessionIdProvider, (previous, next) {
+      if (next == null) {
+        setState(() {
+          _selectedNoteIds = [];
+        });
+      } else {
+        final nextSession = sessions.firstWhere((s) => s.id == next, orElse: () => ChatSession(id: '', title: '', updatedAt: 0, messages: [], noteIds: []));
+        setState(() {
+          _selectedNoteIds = List.from(nextSession.noteIds);
+        });
+        _scrollToBottom();
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu_rounded),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
+        leading: IconButton(
+          icon: const Icon(Icons.menu_rounded),
+          onPressed: () => Scaffold.of(context).openDrawer(),
         ),
         title: Row(
           children: [
@@ -547,179 +435,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-      ),
-      drawer: Drawer(
-        backgroundColor: AppColors.background,
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Drawer Header
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
-                child: Text(
-                  'Lekture AI',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: AppColors.primary,
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-              const Divider(color: AppColors.border, height: 1),
-              
-              // New Chat Button
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    _startNewChat();
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(Icons.add_rounded),
-                  label: const Text('New Chat'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary.withOpacity(0.15),
-                    foregroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: const BorderSide(color: AppColors.primary, width: 1),
-                    ),
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                  ),
-                ),
-              ),
-
-              // Search Chat Input
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (val) {
-                    setState(() {
-                      _searchQuery = val;
-                    });
-                  },
-                  style: const TextStyle(fontSize: 13),
-                  decoration: InputDecoration(
-                    hintText: 'Search Chat...',
-                    prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppColors.textMuted),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear_rounded, size: 16, color: AppColors.textMuted),
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() {
-                                _searchQuery = '';
-                              });
-                            },
-                          )
-                        : null,
-                    fillColor: isDark ? AppColors.surface : Colors.grey[200],
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // History Header
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Text(
-                  'History',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textMuted,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-
-              // History List
-              Expanded(
-                child: filteredSessions.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No chats found',
-                          style: TextStyle(color: AppColors.textMuted, fontSize: 13),
-                        ),
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        itemCount: filteredSessions.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 4),
-                        itemBuilder: (context, index) {
-                          final s = filteredSessions[index];
-                          final isSelected = _activeSessionId == s.id;
-                          return InkWell(
-                            onTap: () {
-                              setState(() {
-                                _activeSessionId = s.id;
-                                _selectedNoteIds = List.from(s.noteIds);
-                              });
-                              Navigator.pop(context);
-                              _scrollToBottom();
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? AppColors.primary.withOpacity(0.1)
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? AppColors.primary.withOpacity(0.3)
-                                      : Colors.transparent,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.chat_bubble_outline_rounded,
-                                    size: 16,
-                                    color: AppColors.textMuted,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      s.title.isNotEmpty ? s.title : 'Untitled Chat',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                        color: isSelected ? AppColors.text : AppColors.text.withOpacity(0.8),
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete_outline_rounded, size: 16, color: AppColors.error),
-                                    onPressed: () {
-                                      ref.read(chatSessionsProvider.notifier).deleteSession(s.id);
-                                      if (_activeSessionId == s.id) {
-                                        _startNewChat();
-                                      }
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Chat deleted')),
-                                      );
-                                    },
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
-                                    visualDensity: VisualDensity.compact,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-              ),
-            ],
-          ),
-        ),
       ),
       body: SafeArea(
         child: Column(
@@ -894,49 +609,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
             const SizedBox(height: 24),
             _buildComposer(context, notes, isDark, isCentered: true),
-            const SizedBox(height: 24),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              alignment: WrapAlignment.center,
-              children: _suggestionsWithIcons.map((s) {
-                final text = s['text'] as String;
-                final icon = s['icon'] as IconData;
-                return InkWell(
-                  onTap: () {
-                    setState(() {
-                      _inputController.text = text;
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.surface : Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: isDark ? Colors.white.withOpacity(0.1) : Colors.black12,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(icon, size: 14, color: AppColors.primary),
-                        const SizedBox(width: 6),
-                        Text(
-                          text,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? AppColors.text : Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
           ],
         ),
       ),

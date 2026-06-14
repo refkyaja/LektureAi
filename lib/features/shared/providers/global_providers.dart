@@ -12,7 +12,11 @@ final localStorageServiceProvider = Provider<LocalStorageService>((ref) {
 });
 
 final aiServiceProvider = Provider<AIService>((ref) {
-  return AIService();
+  final settings = ref.watch(settingsProvider);
+  return AIService(
+    customApiKey: settings.customApiKey,
+    useCustomApiKey: settings.useCustomApiKey,
+  );
 });
 
 // --- Notes State ---
@@ -170,6 +174,9 @@ class AppSettings {
   final bool notifQuiz;
   final bool notifStreak;
   final bool autoSave;
+  final String language;
+  final String customApiKey;
+  final bool useCustomApiKey;
 
   AppSettings({
     required this.themeMode,
@@ -177,6 +184,9 @@ class AppSettings {
     required this.notifQuiz,
     required this.notifStreak,
     required this.autoSave,
+    required this.language,
+    required this.customApiKey,
+    required this.useCustomApiKey,
   });
 
   AppSettings copyWith({
@@ -185,12 +195,18 @@ class AppSettings {
     bool? notifQuiz,
     bool? notifStreak,
     bool? autoSave,
+    String? language,
+    String? customApiKey,
+    bool? useCustomApiKey,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     compactView: compactView ?? this.compactView,
     notifQuiz: notifQuiz ?? this.notifQuiz,
     notifStreak: notifStreak ?? this.notifStreak,
     autoSave: autoSave ?? this.autoSave,
+    language: language ?? this.language,
+    customApiKey: customApiKey ?? this.customApiKey,
+    useCustomApiKey: useCustomApiKey ?? this.useCustomApiKey,
   );
 }
 
@@ -203,11 +219,14 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   final LocalStorageService _storage;
   
   SettingsNotifier(this._storage) : super(AppSettings(
-    themeMode: 'dark',
+    themeMode: 'system',
     compactView: false,
     notifQuiz: true,
     notifStreak: true,
     autoSave: true,
+    language: 'en',
+    customApiKey: '',
+    useCustomApiKey: false,
   )) {
     state = AppSettings(
       themeMode: _storage.getThemeMode(),
@@ -215,6 +234,9 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
       notifQuiz: _storage.getNotifQuiz(),
       notifStreak: _storage.getNotifStreak(),
       autoSave: _storage.getAutoSave(),
+      language: _storage.getLanguage(),
+      customApiKey: _storage.getCustomApiKey(),
+      useCustomApiKey: _storage.getUseCustomApiKey(),
     );
   }
 
@@ -242,4 +264,22 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     await _storage.setAutoSave(value);
     state = state.copyWith(autoSave: value);
   }
+
+  Future<void> setLanguage(String value) async {
+    await _storage.setLanguage(value);
+    state = state.copyWith(language: value);
+  }
+
+  Future<void> setCustomApiKey(String value) async {
+    await _storage.setCustomApiKey(value);
+    state = state.copyWith(customApiKey: value);
+  }
+
+  Future<void> setUseCustomApiKey(bool value) async {
+    await _storage.setUseCustomApiKey(value);
+    state = state.copyWith(useCustomApiKey: value);
+  }
 }
+
+// --- Active Chat Session Sync ---
+final activeChatSessionIdProvider = StateProvider<String?>((ref) => null);

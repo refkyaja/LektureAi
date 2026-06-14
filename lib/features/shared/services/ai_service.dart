@@ -6,20 +6,28 @@ import '../../study/domain/study_model.dart';
 
 class AIService {
   final Dio _dio;
+  final String? customApiKey;
+  final bool useCustomApiKey;
 
-  AIService() : _dio = Dio(BaseOptions(
+  AIService({
+    this.customApiKey,
+    this.useCustomApiKey = false,
+  }) : _dio = Dio(BaseOptions(
     connectTimeout: const Duration(seconds: 30),
     receiveTimeout: const Duration(seconds: 30),
   ));
 
   String? get _apiKey {
+    if (useCustomApiKey && customApiKey != null && customApiKey!.isNotEmpty) {
+      return customApiKey;
+    }
     return dotenv.env['GEMINI_API_KEY'];
   }
 
   String _getEndpoint(String model) {
     final key = _apiKey;
     if (key == null || key.isEmpty) {
-      throw Exception('Gemini API key is not configured. Please add GEMINI_API_KEY to your .env file.');
+      throw Exception('Gemini API key is not configured. Please configure it in Settings or add GEMINI_API_KEY to your .env file.');
     }
     return 'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$key';
   }

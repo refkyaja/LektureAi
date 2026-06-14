@@ -43,7 +43,13 @@ class MyApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: settings.themeMode == 'light' ? ThemeMode.light : ThemeMode.dark,
+      themeMode: settings.themeMode == 'light'
+          ? ThemeMode.light
+          : settings.themeMode == 'dark'
+              ? ThemeMode.dark
+              : ThemeMode.system,
+      themeAnimationDuration: const Duration(milliseconds: 500),
+      themeAnimationCurve: Curves.easeInOut,
       routerConfig: router,
     );
   }

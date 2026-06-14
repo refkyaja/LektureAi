@@ -208,7 +208,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
                       ),
                       Expanded(
                         child: ListView.separated(
-                          padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 90),
+                          padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 130),
                           itemCount: filteredHistory.length,
                           separatorBuilder: (context, index) => const SizedBox(height: 10),
                           itemBuilder: (context, index) {

@@ -166,7 +166,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
             child: filteredNotes.isEmpty
                 ? _buildEmptyState(context)
                 : ListView.separated(
-                    padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 90),
+                    padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 130),
                     itemCount: filteredNotes.length,
                     separatorBuilder: (context, index) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {

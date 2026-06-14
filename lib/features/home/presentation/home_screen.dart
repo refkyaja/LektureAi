@@ -52,7 +52,7 @@ class HomeScreen extends ConsumerWidget {
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 90),
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 130),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
