@@ -334,5 +334,31 @@
         "type": "int"
       }
     }
+  },
+  "pinNote": "Pin Note",
+  "unpinNote": "Unpin Note",
+  "changeCategory": "Change Category",
+  "sortNewest": "Newest",
+  "sortOldest": "Oldest",
+  "sortAlphabeticalAsc": "A-Z",
+  "sortAlphabeticalDesc": "Z-A",
+  "layoutGrid": "Grid View",
+  "layoutList": "List View",
+  "selectCategory": "Select Category",
+  "selectedCount": "{count} selected",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "confirmDeleteMultiple": "Are you sure you want to delete {count} selected notes? This action cannot be undone.",
+  "@confirmDeleteMultiple": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -702,4 +702,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String streakDays(int count) {
     return '$count days';
   }
+
+  @override
+  String get pinNote => 'Pin Note';
+
+  @override
+  String get unpinNote => 'Unpin Note';
+
+  @override
+  String get changeCategory => 'Change Category';
+
+  @override
+  String get sortNewest => 'Newest';
+
+  @override
+  String get sortOldest => 'Oldest';
+
+  @override
+  String get sortAlphabeticalAsc => 'A-Z';
+
+  @override
+  String get sortAlphabeticalDesc => 'Z-A';
+
+  @override
+  String get layoutGrid => 'Grid View';
+
+  @override
+  String get layoutList => 'List View';
+
+  @override
+  String get selectCategory => 'Select Category';
 }

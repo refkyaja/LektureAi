@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../../theme.dart';
 import '../chat/presentation/widgets/chat_drawer.dart';
+import 'providers/global_providers.dart';
 
 class ShellScreen extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
@@ -26,14 +27,17 @@ class ShellScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
+    final hideNavbar = ref.watch(hideNavbarProvider);
 
     return Scaffold(
       extendBody: true,
       body: navigationShell,
       drawer: navigationShell.currentIndex == 4 ? const ChatDrawer() : null,
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        height: 72,
+      bottomNavigationBar: hideNavbar
+          ? null
+          : Container(
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              height: 72,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           boxShadow: [

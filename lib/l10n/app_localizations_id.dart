@@ -706,4 +706,34 @@ class AppLocalizationsId extends AppLocalizations {
   String streakDays(int count) {
     return '$count hari';
   }
+
+  @override
+  String get pinNote => 'Sematkan Catatan';
+
+  @override
+  String get unpinNote => 'Lepaskan Sematan';
+
+  @override
+  String get changeCategory => 'Ubah Kategori';
+
+  @override
+  String get sortNewest => 'Terbaru';
+
+  @override
+  String get sortOldest => 'Terlama';
+
+  @override
+  String get sortAlphabeticalAsc => 'A-Z';
+
+  @override
+  String get sortAlphabeticalDesc => 'Z-A';
+
+  @override
+  String get layoutGrid => 'Tampilan Kisi';
+
+  @override
+  String get layoutList => 'Tampilan Daftar';
+
+  @override
+  String get selectCategory => 'Pilih Kategori';
 }

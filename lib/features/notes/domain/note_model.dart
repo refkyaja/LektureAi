@@ -5,6 +5,7 @@ class Note {
   final String tag;
   final int createdAt;
   final int updatedAt;
+  final bool isPinned;
 
   Note({
     required this.id,
@@ -13,6 +14,7 @@ class Note {
     required this.tag,
     required this.createdAt,
     required this.updatedAt,
+    this.isPinned = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -22,6 +24,7 @@ class Note {
     'tag': tag,
     'createdAt': createdAt,
     'updatedAt': updatedAt,
+    'isPinned': isPinned,
   };
 
   factory Note.fromJson(Map<String, dynamic> json) => Note(
@@ -31,6 +34,7 @@ class Note {
     tag: json['tag'] as String? ?? 'General',
     createdAt: json['createdAt'] as int,
     updatedAt: json['updatedAt'] as int,
+    isPinned: json['isPinned'] as bool? ?? false,
   );
 
   Note copyWith({
@@ -38,6 +42,7 @@ class Note {
     String? body,
     String? tag,
     int? updatedAt,
+    bool? isPinned,
   }) => Note(
     id: id,
     title: title ?? this.title,
@@ -45,5 +50,6 @@ class Note {
     tag: tag ?? this.tag,
     createdAt: createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    isPinned: isPinned ?? this.isPinned,
   );
 }

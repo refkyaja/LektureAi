@@ -19,6 +19,8 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String? _selectedFilterTag;
+  bool _isGridView = false;
+  String _sortBy = 'newest';
 
   final List<String> _defaultTags = ["General", "Math", "Biology", "History", "Physics", "Chemistry", "Lit", "CS"];
 
@@ -95,11 +97,33 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
       return matchesSearch && matchesTag;
     }).toList();
 
+    // Sort notes: pinned notes float to top. Within groups, sort by active criteria.
+    filteredNotes.sort((a, b) {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      
+      switch (_sortBy) {
+        case 'oldest':
+          return a.createdAt.compareTo(b.createdAt);
+        case 'az':
+          final aTitle = a.title.isEmpty ? l10n.untitled : a.title;
+          final bTitle = b.title.isEmpty ? l10n.untitled : b.title;
+          return aTitle.toLowerCase().compareTo(bTitle.toLowerCase());
+        case 'za':
+          final aTitle = a.title.isEmpty ? l10n.untitled : a.title;
+          final bTitle = b.title.isEmpty ? l10n.untitled : b.title;
+          return bTitle.toLowerCase().compareTo(aTitle.toLowerCase());
+        case 'newest':
+        default:
+          return b.updatedAt.compareTo(a.updatedAt);
+      }
+    });
+
     return Scaffold(
       appBar: AppHeader(title: l10n.notes),
       body: Column(
         children: [
-          // Search & New Note Row
+          // Search & Filters Row
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
             child: Row(
@@ -126,18 +150,68 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () => context.push('/notes/edit?id=new'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                // Sort Menu Button
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.sort_rounded),
+                  tooltip: 'Sort notes',
+                  onSelected: (String value) {
+                    setState(() {
+                      _sortBy = value;
+                    });
+                  },
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                    PopupMenuItem<String>(
+                      value: 'newest',
+                      child: Row(
+                        children: [
+                          Icon(Icons.access_time_rounded, size: 18, color: _sortBy == 'newest' ? AppColors.primary : Colors.grey),
+                          const SizedBox(width: 8),
+                          Text(l10n.sortNewest, style: TextStyle(fontWeight: _sortBy == 'newest' ? FontWeight.bold : FontWeight.normal)),
+                        ],
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    l10n.newButton,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                  ),
+                    PopupMenuItem<String>(
+                      value: 'oldest',
+                      child: Row(
+                        children: [
+                          Icon(Icons.history_rounded, size: 18, color: _sortBy == 'oldest' ? AppColors.primary : Colors.grey),
+                          const SizedBox(width: 8),
+                          Text(l10n.sortOldest, style: TextStyle(fontWeight: _sortBy == 'oldest' ? FontWeight.bold : FontWeight.normal)),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'az',
+                      child: Row(
+                        children: [
+                          Icon(Icons.sort_by_alpha_rounded, size: 18, color: _sortBy == 'az' ? AppColors.primary : Colors.grey),
+                          const SizedBox(width: 8),
+                          Text(l10n.sortAlphabeticalAsc, style: TextStyle(fontWeight: _sortBy == 'az' ? FontWeight.bold : FontWeight.normal)),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'za',
+                      child: Row(
+                        children: [
+                          Icon(Icons.sort_by_alpha_rounded, size: 18, color: _sortBy == 'za' ? AppColors.primary : Colors.grey),
+                          const SizedBox(width: 8),
+                          Text(l10n.sortAlphabeticalDesc, style: TextStyle(fontWeight: _sortBy == 'za' ? FontWeight.bold : FontWeight.normal)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 4),
+                // Layout Toggle Button
+                IconButton(
+                  icon: Icon(_isGridView ? Icons.view_list_rounded : Icons.grid_view_rounded),
+                  tooltip: _isGridView ? l10n.layoutList : l10n.layoutGrid,
+                  onPressed: () {
+                    setState(() {
+                      _isGridView = !_isGridView;
+                    });
+                  },
                 ),
               ],
             ),
@@ -190,39 +264,63 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
           Expanded(
             child: filteredNotes.isEmpty
                 ? _buildEmptyState(context)
-                : ListView.separated(
-                    padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 130),
-                    itemCount: filteredNotes.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      final note = filteredNotes[index];
-                      return Dismissible(
-                        key: Key(note.id),
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          decoration: BoxDecoration(
-                            color: AppColors.error.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
+                : _isGridView
+                    ? GridView.builder(
+                        padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 130),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 1.1,
                         ),
-                        confirmDismiss: (direction) async {
-                          return await _confirmDeleteDialog(context, note.title);
+                        itemCount: filteredNotes.length,
+                        itemBuilder: (context, index) {
+                          final note = filteredNotes[index];
+                          return _buildNoteCard(context, note, true);
                         },
-                        onDismissed: (direction) {
-                          ref.read(notesProvider.notifier).deleteNote(note.id);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(l10n.noteDeleted)),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 130),
+                        itemCount: filteredNotes.length,
+                        separatorBuilder: (context, index) => const SizedBox(height: 10),
+                        itemBuilder: (context, index) {
+                          final note = filteredNotes[index];
+                          return Dismissible(
+                            key: Key(note.id),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 20),
+                              decoration: BoxDecoration(
+                                color: AppColors.error.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
+                            ),
+                            confirmDismiss: (direction) async {
+                              return await _confirmDeleteDialog(context, note.title);
+                            },
+                            onDismissed: (direction) {
+                              ref.read(notesProvider.notifier).deleteNote(note.id);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(l10n.noteDeleted)),
+                              );
+                            },
+                            child: _buildNoteCard(context, note, settings.compactView),
                           );
                         },
-                        child: _buildNoteCard(context, note, settings.compactView),
-                      );
-                    },
-                  ),
+                      ),
           ),
         ],
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 82.0),
+        child: FloatingActionButton(
+          onPressed: () => context.push('/notes/edit?id=new'),
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          child: const Icon(Icons.add_rounded, size: 28),
+        ),
       ),
     );
   }
@@ -238,6 +336,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
 
     return InkWell(
       onTap: () => context.push('/notes/edit?id=${note.id}'),
+      onLongPress: () => _showNoteActions(context, note),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: EdgeInsets.all(compact ? 12 : 16),
@@ -254,6 +353,10 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                if (note.isPinned) ...[
+                  const Icon(Icons.push_pin_rounded, size: 14, color: AppColors.primary),
+                  const SizedBox(width: 4),
+                ],
                 Expanded(
                   child: Text(
                     note.title.isEmpty ? l10n.untitled : note.title,
@@ -310,6 +413,111 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showNoteActions(BuildContext context, Note note) {
+    final l10n = AppLocalizations.of(context)!;
+    final customTags = ref.read(customTagsProvider);
+    final allTags = [..._defaultTags, ...customTags].toSet().toList();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(note.isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined, color: AppColors.primary),
+                title: Text(note.isPinned ? l10n.unpinNote : l10n.pinNote, style: const TextStyle(fontWeight: FontWeight.bold)),
+                onTap: () {
+                  Navigator.pop(context);
+                  ref.read(notesProvider.notifier).updateNote(note.copyWith(isPinned: !note.isPinned));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.label_outline_rounded, color: AppColors.secondary),
+                title: Text(l10n.changeCategory, style: const TextStyle(fontWeight: FontWeight.bold)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showCategorySelection(context, note, allTags);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
+                title: Text(l10n.deleteNoteOption, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.error)),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final confirm = await _confirmDeleteDialog(context, note.title);
+                  if (confirm == true) {
+                    ref.read(notesProvider.notifier).deleteNote(note.id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.noteDeleted)),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showCategorySelection(BuildContext context, Note note, List<String> tags) {
+    final l10n = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  l10n.selectCategory,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textMuted),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: tags.length,
+                  separatorBuilder: (context, index) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final t = tags[index];
+                    final isSelected = note.tag == t;
+                    return ListTile(
+                      title: Text(
+                        _getLocalizedTag(t, l10n),
+                        style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
+                      ),
+                      trailing: isSelected ? const Icon(Icons.check_rounded, color: AppColors.primary) : null,
+                      onTap: () {
+                        Navigator.pop(context);
+                        ref.read(notesProvider.notifier).updateNote(note.copyWith(tag: t));
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

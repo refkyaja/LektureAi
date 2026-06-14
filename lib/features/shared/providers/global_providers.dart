@@ -283,3 +283,6 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
 
 // --- Active Chat Session Sync ---
 final activeChatSessionIdProvider = StateProvider<String?>((ref) => null);
+
+// --- Bottom Navigation Hide/Show State ---
+final hideNavbarProvider = StateProvider<bool>((ref) => false);

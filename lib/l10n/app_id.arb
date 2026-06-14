@@ -334,5 +334,31 @@
         "type": "int"
       }
     }
+  },
+  "pinNote": "Sematkan Catatan",
+  "unpinNote": "Lepaskan Sematan",
+  "changeCategory": "Ubah Kategori",
+  "sortNewest": "Terbaru",
+  "sortOldest": "Terlama",
+  "sortAlphabeticalAsc": "A-Z",
+  "sortAlphabeticalDesc": "Z-A",
+  "layoutGrid": "Tampilan Kisi",
+  "layoutList": "Tampilan Daftar",
+  "selectCategory": "Pilih Kategori",
+  "selectedCount": "{count} terpilih",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "confirmDeleteMultiple": "Apakah Anda yakin ingin menghapus {count} catatan terpilih? Tindakan ini tidak dapat dibatalkan.",
+  "@confirmDeleteMultiple": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

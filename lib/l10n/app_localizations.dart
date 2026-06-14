@@ -1411,6 +1411,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} days'**
   String streakDays(int count);
+
+  /// No description provided for @pinNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin Note'**
+  String get pinNote;
+
+  /// No description provided for @unpinNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin Note'**
+  String get unpinNote;
+
+  /// No description provided for @changeCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Category'**
+  String get changeCategory;
+
+  /// No description provided for @sortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get sortNewest;
+
+  /// No description provided for @sortOldest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest'**
+  String get sortOldest;
+
+  /// No description provided for @sortAlphabeticalAsc.
+  ///
+  /// In en, this message translates to:
+  /// **'A-Z'**
+  String get sortAlphabeticalAsc;
+
+  /// No description provided for @sortAlphabeticalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Z-A'**
+  String get sortAlphabeticalDesc;
+
+  /// No description provided for @layoutGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid View'**
+  String get layoutGrid;
+
+  /// No description provided for @layoutList.
+  ///
+  /// In en, this message translates to:
+  /// **'List View'**
+  String get layoutList;
+
+  /// No description provided for @selectCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Category'**
+  String get selectCategory;
 }
 
 class _AppLocalizationsDelegate
