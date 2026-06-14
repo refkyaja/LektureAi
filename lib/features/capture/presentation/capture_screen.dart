@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../../../theme.dart';
 import '../../shared/providers/global_providers.dart';
 import '../../shared/widgets/app_header.dart';
@@ -25,9 +26,10 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: const AppHeader(title: 'Capture'),
+      appBar: AppHeader(title: l10n.capture),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 90),
         child: Column(
@@ -66,7 +68,7 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          'Voice',
+                          l10n.voice,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -97,7 +99,7 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          'Scan',
+                          l10n.scan,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -135,6 +137,7 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
   String _interim = '';
 
   void _toggleListening() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_isListening) {
       await _speech.stop();
       setState(() => _isListening = false);
@@ -150,7 +153,7 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
           debugPrint('STT Error: $error');
           setState(() => _isListening = false);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Dictation error: ${error.errorMsg}')),
+            SnackBar(content: Text(l10n.dictationError(error.errorMsg))),
           );
         },
       );
@@ -160,19 +163,21 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
           _isListening = true;
           _interim = '';
         });
+        final settings = ref.read(settingsProvider);
         _speech.listen(
           onResult: (result) {
             setState(() {
               _transcript = result.recognizedWords;
             });
           },
+          localeId: settings.language == 'id' ? 'id_ID' : 'en_US',
           listenMode: stt.ListenMode.dictation,
           cancelOnError: false,
           partialResults: true,
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Speech recognition is not available.')),
+          SnackBar(content: Text(l10n.speechNotAvailable)),
         );
       }
     }
@@ -186,17 +191,18 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
   }
 
   void _saveAsNote() {
+    final l10n = AppLocalizations.of(context)!;
     final text = '$_transcript $_interim'.trim();
     if (text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nothing to save.')),
+        SnackBar(content: Text(l10n.nothingToSave)),
       );
       return;
     }
 
     final dateStr = DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now());
     context.push(
-      '/notes/edit?id=new&prefillTitle=Voice note $dateStr&prefillBody=${Uri.encodeComponent(text)}&prefillTag=General',
+      '/notes/edit?id=new&prefillTitle=${Uri.encodeComponent(l10n.voiceNoteTitle(dateStr))}&prefillBody=${Uri.encodeComponent(text)}&prefillTag=General',
     );
   }
 
@@ -204,6 +210,7 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -250,12 +257,12 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
               ),
               const SizedBox(height: 16),
               Text(
-                _isListening ? 'Listening…' : 'Tap to start dictating',
+                _isListening ? l10n.listening : l10n.tapToStartDictating,
                 style: theme.textTheme.displaySmall?.copyWith(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               Text(
-                _isListening ? 'Speak clearly. Tap again to stop.' : 'Real-time speech-to-text',
+                _isListening ? l10n.speakClearly : l10n.realTimeStt,
                 style: theme.textTheme.bodyMedium?.copyWith(fontSize: 11),
               ),
             ],
@@ -281,9 +288,9 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'TRANSCRIPT',
-                style: TextStyle(
+              Text(
+                l10n.transcript,
+                style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   color: AppColors.secondary,
@@ -293,7 +300,7 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
               const SizedBox(height: 8),
               if (_transcript.isEmpty && _interim.isEmpty)
                 Text(
-                  'Your words will appear here as you speak.',
+                  l10n.wordsAppearHere,
                   style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13),
                 )
               else
@@ -331,7 +338,7 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-                child: Text('Clear', style: TextStyle(color: isDark ? AppColors.text : Colors.black87)),
+                child: Text(l10n.clear, style: TextStyle(color: isDark ? AppColors.text : Colors.black87)),
               ),
             ),
             const SizedBox(width: 10),
@@ -341,7 +348,7 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-                child: const Text('Save as Note', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(l10n.saveAsNote, style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -443,6 +450,7 @@ class _ScanCaptureWidgetState extends ConsumerState<ScanCaptureWidget> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage(ImageSource source) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final picked = await _picker.pickImage(source: source);
       if (picked != null) {
@@ -465,7 +473,7 @@ class _ScanCaptureWidgetState extends ConsumerState<ScanCaptureWidget> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Text extracted successfully!')),
+          SnackBar(content: Text(l10n.textExtracted)),
         );
       }
     } catch (e) {
@@ -473,7 +481,7 @@ class _ScanCaptureWidgetState extends ConsumerState<ScanCaptureWidget> {
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('OCR Failed: ${e.toString()}')),
+        SnackBar(content: Text(l10n.ocrFailed(e.toString()))),
       );
     }
   }
@@ -486,9 +494,10 @@ class _ScanCaptureWidgetState extends ConsumerState<ScanCaptureWidget> {
   }
 
   void _saveAsNote() {
+    final l10n = AppLocalizations.of(context)!;
     if (_extractedText.trim().isEmpty) return;
     context.push(
-      '/notes/edit?id=new&prefillTitle=Scanned page&prefillBody=${Uri.encodeComponent(_extractedText)}&prefillTag=General',
+      '/notes/edit?id=new&prefillTitle=${Uri.encodeComponent(l10n.scannedPageTitle)}&prefillBody=${Uri.encodeComponent(_extractedText)}&prefillTag=General',
     );
   }
 
@@ -496,6 +505,7 @@ class _ScanCaptureWidgetState extends ConsumerState<ScanCaptureWidget> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     if (_imageFile == null) {
       return InkWell(
@@ -514,7 +524,7 @@ class _ScanCaptureWidgetState extends ConsumerState<ScanCaptureWidget> {
                 children: [
                   ListTile(
                     leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
-                    title: const Text('Take Photo', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    title: Text(l10n.takePhoto, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                     onTap: () {
                       Navigator.pop(context);
                       _pickImage(ImageSource.camera);
@@ -522,7 +532,7 @@ class _ScanCaptureWidgetState extends ConsumerState<ScanCaptureWidget> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.photo_library_rounded, color: AppColors.secondary),
-                    title: const Text('Choose from Gallery', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    title: Text(l10n.chooseFromGallery, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                     onTap: () {
                       Navigator.pop(context);
                       _pickImage(ImageSource.gallery);
@@ -561,12 +571,12 @@ class _ScanCaptureWidgetState extends ConsumerState<ScanCaptureWidget> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Scan a textbook page',
+                l10n.scanTextbook,
                 style: theme.textTheme.displaySmall?.copyWith(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 6),
               Text(
-                'Take a photo or pick from gallery. AI extracts the text.',
+                l10n.takePhotoOrPick,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(fontSize: 11.5),
               ),
@@ -604,12 +614,12 @@ class _ScanCaptureWidgetState extends ConsumerState<ScanCaptureWidget> {
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      CircularProgressIndicator(color: AppColors.accent),
-                      SizedBox(height: 12),
+                    children: [
+                      const CircularProgressIndicator(color: AppColors.accent),
+                      const SizedBox(height: 12),
                       Text(
-                        'Reading page…',
-                        style: TextStyle(
+                        l10n.readingPage,
+                        style: const TextStyle(
                           color: AppColors.accent,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -633,7 +643,7 @@ class _ScanCaptureWidgetState extends ConsumerState<ScanCaptureWidget> {
             onChanged: (val) => _extractedText = val,
             style: const TextStyle(fontSize: 13.5, height: 1.4),
             decoration: InputDecoration(
-              hintText: 'Extracted text will appear here...',
+              hintText: l10n.extractedTextHint,
               fillColor: isDark ? AppColors.surface : Colors.white,
               contentPadding: const EdgeInsets.all(16),
             ),
@@ -653,7 +663,7 @@ class _ScanCaptureWidgetState extends ConsumerState<ScanCaptureWidget> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-                child: Text('Retake', style: TextStyle(color: isDark ? AppColors.text : Colors.black87)),
+                child: Text(l10n.retake, style: TextStyle(color: isDark ? AppColors.text : Colors.black87)),
               ),
             ),
             const SizedBox(width: 10),
@@ -663,7 +673,7 @@ class _ScanCaptureWidgetState extends ConsumerState<ScanCaptureWidget> {
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-                child: const Text('Save as Note', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(l10n.saveAsNote, style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
             ),
           ],

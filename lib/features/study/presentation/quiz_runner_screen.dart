@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
+import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../../../theme.dart';
 import '../../shared/providers/global_providers.dart';
 import '../domain/study_model.dart';
@@ -74,6 +75,7 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
       final notes = ref.read(notesProvider);
       final note = notes.firstWhere((n) => n.id == widget.noteId);
       final ai = ref.read(aiServiceProvider);
+      final l10n = AppLocalizations.of(context)!;
       
       final result = await ai.generateQuiz(
         note.body,
@@ -95,7 +97,7 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
         id: _historyId,
         kind: 'quiz',
         noteId: widget.noteId,
-        noteTitle: note.title.isEmpty ? 'Untitled' : note.title,
+        noteTitle: note.title.isEmpty ? l10n.untitled : note.title,
         createdAt: DateTime.now().millisecondsSinceEpoch,
         questions: result,
       );
@@ -150,22 +152,22 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     final notes = ref.read(notesProvider);
     final note = notes.firstWhere((n) => n.id == widget.noteId, orElse: () => Note(id: '', title: 'Deleted Note', body: '', tag: '', createdAt: 0, updatedAt: 0));
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'QUIZ',
-              style: TextStyle(fontSize: 9, color: AppColors.secondary, fontWeight: FontWeight.bold, letterSpacing: 0.8),
+            Text(
+              l10n.quizUpper,
+              style: const TextStyle(fontSize: 9, color: AppColors.secondary, fontWeight: FontWeight.bold, letterSpacing: 0.8),
             ),
             const SizedBox(height: 2),
             Text(
-              note.title.isEmpty ? 'Untitled' : note.title,
+              note.title.isEmpty ? l10n.untitled : note.title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.titleMedium?.copyWith(fontSize: 13),
@@ -190,6 +192,7 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
 
   Widget _buildBody() {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     
     if (_isLoading) {
       return Column(
@@ -206,7 +209,7 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
               children: [
                 const CircularProgressIndicator(color: AppColors.primary),
                 const SizedBox(height: 18),
-                const Text('AI is crafting your quiz…', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(l10n.aiCraftingQuiz, style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 _buildSkeletonLine(double.infinity),
                 const SizedBox(height: 8),
@@ -233,7 +236,7 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
             children: [
               const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 40),
               const SizedBox(height: 12),
-              const Text('Generation Failed', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(l10n.generationFailed, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 6),
               Text(
                 _errorMessage,
@@ -243,7 +246,7 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _generateQuiz,
-                child: const Text('Try Again'),
+                child: Text(l10n.tryAgain),
               ),
             ],
           ),
@@ -252,7 +255,7 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
     }
 
     if (_questions.isEmpty) {
-      return const Center(child: Text('No questions loaded.'));
+      return Center(child: Text(l10n.noQuestionsLoaded));
     }
 
     final totalQs = _questions.length;
@@ -281,9 +284,9 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
             ),
             child: Column(
               children: [
-                const Text(
-                  'QUIZ COMPLETE',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.success, letterSpacing: 1.2),
+                Text(
+                  l10n.quizCompleteUpper,
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.success, letterSpacing: 1.2),
                 ),
                 const SizedBox(height: 14),
                 Text(
@@ -292,7 +295,7 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '$percentage% correct',
+                  l10n.percentCorrect(percentage),
                   style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13),
                 ),
                 const SizedBox(height: 24),
@@ -306,7 +309,7 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       ),
-                      child: Text('Retake', style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87)),
+                      child: Text(l10n.retake, style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87)),
                     ),
                     if (_isNewQuiz) ...[
                       const SizedBox(width: 10),
@@ -315,7 +318,7 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                         ),
-                        child: const Text('New Quiz'),
+                        child: Text(l10n.newQuiz),
                       ),
                     ],
                   ],
@@ -329,6 +332,7 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
 
     final currentQuestion = _questions[_currentIndex];
     final progress = _currentIndex / totalQs;
+    final correctPickCount = _picks.asMap().entries.where((entry) => entry.value == _questions[entry.key].answerIndex).length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -338,11 +342,11 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Question ${_currentIndex + 1} of $totalQs',
+              l10n.questionNumberProgress(_currentIndex + 1, totalQs),
               style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
             ),
             Text(
-              '${_picks.asMap().entries.where((entry) => entry.value == _questions[entry.key].answerIndex).length} correct',
+              l10n.correctCount(correctPickCount),
               style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
             ),
           ],
@@ -388,7 +392,7 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
                 double opacity = 1.0;
 
                 if (_pickedIndex != null) {
-                  if (i == currentQuestion.answerIndex) {
+                   if (i == currentQuestion.answerIndex) {
                     // Correct answer (Always highlight in green once picked)
                     borderColor = AppColors.success;
                     bgColor = AppColors.success.withOpacity(0.15);
@@ -433,7 +437,7 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
                 const SizedBox(height: 14),
                 ElevatedButton(
                   onPressed: _nextQuestion,
-                  child: Text(_currentIndex + 1 == totalQs ? 'See results' : 'Next'),
+                  child: Text(_currentIndex + 1 == totalQs ? l10n.seeResults : l10n.next),
                 ),
               ],
             ],

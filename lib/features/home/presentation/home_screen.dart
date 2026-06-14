@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../../../theme.dart';
 import '../../shared/providers/global_providers.dart';
 import '../../shared/widgets/app_header.dart';
@@ -28,11 +29,35 @@ class HomeScreen extends ConsumerWidget {
     return DateFormat('MMM d').format(dt);
   }
 
+  String _getLocalizedTag(String tag, AppLocalizations l10n) {
+    switch (tag) {
+      case 'General':
+        return l10n.tagGeneral;
+      case 'Math':
+        return l10n.subjectMath;
+      case 'Biology':
+        return l10n.subjectBiology;
+      case 'History':
+        return l10n.subjectHistory;
+      case 'Physics':
+        return l10n.subjectPhysics;
+      case 'Chemistry':
+        return l10n.subjectChemistry;
+      case 'Lit':
+        return l10n.subjectLiterature;
+      case 'CS':
+        return l10n.subjectCS;
+      default:
+        return tag;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notes = ref.watch(notesProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     // Get recent 3 notes
     final recentNotes = [...notes]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -44,7 +69,7 @@ class HomeScreen extends ConsumerWidget {
     final distinctTags = notes.map((n) => n.tag).toSet().length;
 
     return Scaffold(
-      appBar: const AppHeader(title: 'Lekture'),
+      appBar: AppHeader(title: l10n.appTitle),
       body: RefreshIndicator(
         color: AppColors.primary,
         onRefresh: () async {
@@ -84,7 +109,7 @@ class HomeScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'TODAY',
+                      l10n.today.toUpperCase(),
                       style: theme.textTheme.labelLarge?.copyWith(
                         color: AppColors.secondary,
                         letterSpacing: 1.5,
@@ -92,14 +117,14 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Ready to study smarter?',
+                      l10n.readyToStudy,
                       style: theme.textTheme.displayMedium?.copyWith(
                         fontSize: 22,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Capture a lecture, scan your textbook, or quiz yourself in seconds.',
+                      l10n.heroDescription,
                       style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 16),
@@ -108,7 +133,7 @@ class HomeScreen extends ConsumerWidget {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () => context.go('/capture'),
-                            child: const Text('Start Dictating'),
+                            child: Text(l10n.startDictating),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -124,7 +149,7 @@ class HomeScreen extends ConsumerWidget {
                             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                           ),
                           child: Text(
-                            'Ask AI',
+                            l10n.askAi,
                             style: TextStyle(
                               color: isDark ? AppColors.text : Colors.black87,
                             ),
@@ -140,11 +165,11 @@ class HomeScreen extends ConsumerWidget {
               // Stats row
               Row(
                 children: [
-                  Expanded(child: _buildStatCard(context, 'Notes', '$totalNotes')),
+                  Expanded(child: _buildStatCard(context, l10n.notes, '$totalNotes')),
                   const SizedBox(width: 10),
-                  Expanded(child: _buildStatCard(context, 'Words', _formatWordCount(totalWords))),
+                  Expanded(child: _buildStatCard(context, l10n.words, _formatWordCount(totalWords))),
                   const SizedBox(width: 10),
-                  Expanded(child: _buildStatCard(context, 'Tags', '$distinctTags')),
+                  Expanded(child: _buildStatCard(context, l10n.tags, '$distinctTags')),
                 ],
               ),
               const SizedBox(height: 20),
@@ -154,12 +179,12 @@ class HomeScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Recent Notes',
+                    l10n.recentNotes,
                     style: theme.textTheme.headlineMedium,
                   ),
                   TextButton(
                     onPressed: () => context.go('/notes'),
-                    child: const Text('See all'),
+                    child: Text(l10n.seeAll),
                   ),
                 ],
               ),
@@ -172,6 +197,7 @@ class HomeScreen extends ConsumerWidget {
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.zero,
                   itemCount: displayNotes.length,
                   separatorBuilder: (context, index) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
@@ -179,11 +205,11 @@ class HomeScreen extends ConsumerWidget {
                     return _buildNoteCard(context, note);
                   },
                 ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 14),
 
               // Quick Actions Header
               Text(
-                'Quick Actions',
+                l10n.quickActions,
                 style: theme.textTheme.headlineMedium,
               ),
               const SizedBox(height: 12),
@@ -195,8 +221,8 @@ class HomeScreen extends ConsumerWidget {
                     child: _buildQuickActionCard(
                       context,
                       icon: Icons.psychology_rounded,
-                      title: 'Quiz me',
-                      desc: 'From any note',
+                      title: l10n.quizMe,
+                      desc: l10n.fromAnyNote,
                       onTap: () => context.go('/study'),
                     ),
                   ),
@@ -205,8 +231,8 @@ class HomeScreen extends ConsumerWidget {
                     child: _buildQuickActionCard(
                       context,
                       icon: Icons.camera_alt_rounded,
-                      title: 'Scan page',
-                      desc: 'OCR from photo',
+                      title: l10n.scanPage,
+                      desc: l10n.ocrFromPhoto,
                       onTap: () => context.go('/capture?mode=scan'),
                     ),
                   ),
@@ -258,11 +284,12 @@ class HomeScreen extends ConsumerWidget {
   Widget _buildNoteCard(BuildContext context, Note note) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final wordCountText = '${_getWordCount(note.body)} words';
+    final l10n = AppLocalizations.of(context)!;
+    final wordCountText = '${_getWordCount(note.body)} ${l10n.words.toLowerCase()}';
     final dateText = _formatDate(note.updatedAt);
     
     final preview = note.body.replaceAll(RegExp(r'\s+'), ' ').trim();
-    final previewText = preview.isEmpty ? 'Empty note' : (preview.length > 90 ? '${preview.substring(0, 90)}...' : preview);
+    final previewText = preview.isEmpty ? l10n.emptyNote : (preview.length > 90 ? '${preview.substring(0, 90)}...' : preview);
 
     return InkWell(
       onTap: () => context.push('/notes/edit?id=${note.id}'),
@@ -284,7 +311,7 @@ class HomeScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    note.title.isEmpty ? 'Untitled' : note.title,
+                    note.title.isEmpty ? l10n.untitled : note.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.titleMedium?.copyWith(
@@ -300,7 +327,7 @@ class HomeScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    note.tag,
+                    _getLocalizedTag(note.tag, l10n),
                     style: const TextStyle(
                       color: AppColors.secondary,
                       fontSize: 9,
@@ -342,6 +369,7 @@ class HomeScreen extends ConsumerWidget {
   Widget _buildEmptyNotesCard(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -350,7 +378,7 @@ class HomeScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
-          style: isDark ? BorderStyle.solid : BorderStyle.solid,
+          style: BorderStyle.solid,
         ),
       ),
       child: Column(
@@ -370,12 +398,12 @@ class HomeScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'No notes yet',
+            l10n.noNotesYet,
             style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: 4),
           Text(
-            'Start by dictating or typing your first note.',
+            l10n.startByDictating,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium,
           ),
@@ -388,7 +416,7 @@ class HomeScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: const Text('Capture now', style: TextStyle(fontSize: 13)),
+            child: Text(l10n.captureNow, style: const TextStyle(fontSize: 13)),
           ),
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:lekture_ai/l10n/app_localizations.dart';
 import 'theme.dart';
 import 'features/shared/services/local_storage_service.dart';
 import 'features/shared/providers/global_providers.dart';
@@ -50,6 +51,9 @@ class MyApp extends ConsumerWidget {
               : ThemeMode.system,
       themeAnimationDuration: const Duration(milliseconds: 500),
       themeAnimationCurve: Curves.easeInOut,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: Locale(settings.language),
       routerConfig: router,
     );
   }

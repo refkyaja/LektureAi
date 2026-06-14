@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../../../theme.dart';
 import '../../shared/providers/global_providers.dart';
 import '../../shared/widgets/app_header.dart';
@@ -48,6 +49,29 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
     return DateFormat('MMM d').format(dt);
   }
 
+  String _getLocalizedTag(String tag, AppLocalizations l10n) {
+    switch (tag) {
+      case 'General':
+        return l10n.tagGeneral;
+      case 'Math':
+        return l10n.subjectMath;
+      case 'Biology':
+        return l10n.subjectBiology;
+      case 'History':
+        return l10n.subjectHistory;
+      case 'Physics':
+        return l10n.subjectPhysics;
+      case 'Chemistry':
+        return l10n.subjectChemistry;
+      case 'Lit':
+        return l10n.subjectLiterature;
+      case 'CS':
+        return l10n.subjectCS;
+      default:
+        return tag;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final notes = ref.watch(notesProvider);
@@ -57,6 +81,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     // Filter notes
     final filteredNotes = notes.where((note) {
@@ -71,7 +96,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
     }).toList();
 
     return Scaffold(
-      appBar: const AppHeader(title: 'Notes'),
+      appBar: AppHeader(title: l10n.notes),
       body: Column(
         children: [
           // Search & New Note Row
@@ -84,7 +109,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                     controller: _searchController,
                     style: const TextStyle(fontSize: 13.5),
                     decoration: InputDecoration(
-                      hintText: 'Search notes, tags...',
+                      hintText: l10n.searchNotesHint,
                       prefixIcon: const Icon(Icons.search_rounded, size: 20),
                       contentPadding: const EdgeInsets.symmetric(vertical: 10),
                       filled: true,
@@ -109,9 +134,9 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    '+ New',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                  child: Text(
+                    l10n.newButton,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -130,7 +155,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                 if (index == 0) {
                   final isSelected = _selectedFilterTag == null;
                   return ChoiceChip(
-                    label: const Text('All', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    label: Text(l10n.allChips, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                     selected: isSelected,
                     selectedColor: AppColors.primary,
                     backgroundColor: isDark ? AppColors.surface : Colors.grey[200],
@@ -145,7 +170,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                 final tag = allTags[index - 1];
                 final isSelected = _selectedFilterTag == tag;
                 return ChoiceChip(
-                  label: Text(tag, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  label: Text(_getLocalizedTag(tag, l10n), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                   selected: isSelected,
                   selectedColor: AppColors.primary,
                   backgroundColor: isDark ? AppColors.surface : Colors.grey[200],
@@ -189,7 +214,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                         onDismissed: (direction) {
                           ref.read(notesProvider.notifier).deleteNote(note.id);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Note deleted')),
+                            SnackBar(content: Text(l10n.noteDeleted)),
                           );
                         },
                         child: _buildNoteCard(context, note, settings.compactView),
@@ -205,10 +230,11 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
   Widget _buildNoteCard(BuildContext context, Note note, bool compact) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
     final preview = note.body.replaceAll(RegExp(r'\s+'), ' ').trim();
-    final previewText = preview.isEmpty ? 'Empty note' : (preview.length > 90 ? '${preview.substring(0, 90)}...' : preview);
+    final previewText = preview.isEmpty ? l10n.emptyNote : (preview.length > 90 ? '${preview.substring(0, 90)}...' : preview);
     final dateText = _formatDate(note.updatedAt);
-    final wordsText = '${_getWordCount(note.body)} words';
+    final wordsText = '${_getWordCount(note.body)} ${l10n.words.toLowerCase()}';
 
     return InkWell(
       onTap: () => context.push('/notes/edit?id=${note.id}'),
@@ -230,7 +256,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    note.title.isEmpty ? 'Untitled' : note.title,
+                    note.title.isEmpty ? l10n.untitled : note.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.titleMedium?.copyWith(
@@ -246,7 +272,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    note.tag,
+                    _getLocalizedTag(note.tag, l10n),
                     style: const TextStyle(
                       color: AppColors.secondary,
                       fontSize: 9,
@@ -289,6 +315,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
 
   Widget _buildEmptyState(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
@@ -310,14 +337,14 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              _searchQuery.isNotEmpty ? 'No matches' : 'No notes yet',
+              _searchQuery.isNotEmpty ? l10n.noMatches : l10n.noNotesYet,
               style: theme.textTheme.titleMedium,
             ),
             const SizedBox(height: 4),
             Text(
               _searchQuery.isNotEmpty
-                  ? 'Try a different search query or select another filter tag.'
-                  : 'Start by dictating or typing your first note.',
+                  ? l10n.tryDifferentSearch
+                  : l10n.startByDictating,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium,
             ),
@@ -325,7 +352,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => context.push('/notes/edit?id=new'),
-                child: const Text('Create note'),
+                child: Text(l10n.createNote),
               ),
             ],
           ],
@@ -335,23 +362,24 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
   }
 
   Future<bool?> _confirmDeleteDialog(BuildContext context, String title) {
+    final l10n = AppLocalizations.of(context)!;
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete note?', style: TextStyle(fontSize: 18)),
+        title: Text(l10n.deleteNoteTitle, style: const TextStyle(fontSize: 18)),
         content: Text(
-          'Are you sure you want to delete "${title.isEmpty ? 'Untitled' : title}"? This action cannot be undone.',
+          l10n.deleteNoteConfirm(title.isEmpty ? l10n.untitled : title),
           style: const TextStyle(fontSize: 13.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),

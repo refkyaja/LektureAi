@@ -58,36 +58,24 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
                 ],
               ),
               if (showSettings)
-                Row(
-                  children: [
-                    Text(
-                      'AI Study Buddy',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
+                IconButton(
+                  onPressed: () => context.push('/settings'),
+                  icon: const Icon(Icons.settings_outlined),
+                  style: IconButton.styleFrom(
+                    backgroundColor: isDark ? AppColors.surface : Colors.black.withOpacity(0.03),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: BorderSide(
+                        color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: () => context.push('/settings'),
-                      icon: const Icon(Icons.settings_outlined),
-                      style: IconButton.styleFrom(
-                        backgroundColor: isDark ? AppColors.surface : Colors.black.withOpacity(0.03),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(
-                            color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
-                          ),
-                        ),
-                        padding: const EdgeInsets.all(8),
-                      ),
-                      iconSize: 18,
-                      constraints: const BoxConstraints(
-                        minWidth: 36,
-                        minHeight: 36,
-                      ),
-                    ),
-                  ],
+                    padding: const EdgeInsets.all(8),
+                  ),
+                  iconSize: 18,
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
                 ),
             ],
           ),

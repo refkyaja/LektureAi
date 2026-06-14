@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../../../theme.dart';
 import '../../shared/providers/global_providers.dart';
 import '../../shared/widgets/app_header.dart';
@@ -24,9 +25,10 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
   }
 
   void _openGenerateSheet(BuildContext context, List<Note> notes) {
+    final l10n = AppLocalizations.of(context)!;
     if (notes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please create a note first.')),
+        SnackBar(content: Text(l10n.pleaseCreateNoteFirst)),
       );
       return;
     }
@@ -49,11 +51,12 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
     final notes = ref.watch(notesProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     final filteredHistory = history.where((h) => h.kind == _mode).toList();
 
     return Scaffold(
-      appBar: const AppHeader(title: 'Study'),
+      appBar: AppHeader(title: l10n.study),
       body: Column(
         children: [
           // Submode selector
@@ -82,7 +85,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          'Quizzes',
+                          l10n.quizzes,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -104,7 +107,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          'Flashcards',
+                          l10n.flashcards,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -164,12 +167,12 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _mode == 'quiz' ? 'Generate new quiz' : 'Generate flashcards',
+                            _mode == 'quiz' ? l10n.generateNewQuiz : l10n.generateFlashcards,
                             style: theme.textTheme.titleMedium?.copyWith(fontSize: 14),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Pick a note + customize',
+                            l10n.pickNoteCustomize,
                             style: theme.textTheme.bodyMedium?.copyWith(fontSize: 11),
                           ),
                         ],
@@ -197,7 +200,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                         child: Text(
-                          'HISTORY · ${filteredHistory.length}',
+                          l10n.historyHeader(filteredHistory.length),
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -229,6 +232,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final isQuiz = item.kind == 'quiz';
+    final l10n = AppLocalizations.of(context)!;
 
     return InkWell(
       onTap: () {
@@ -263,7 +267,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          isQuiz ? 'Quiz' : 'Flashcards',
+                          isQuiz ? l10n.quiz : l10n.flashcards,
                           style: TextStyle(
                             color: isQuiz ? AppColors.success : AppColors.secondary,
                             fontSize: 9,
@@ -280,7 +284,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            'Score ${item.scoreCorrect}/${item.scoreTotal}',
+                            l10n.scoreLabel(item.scoreCorrect!, item.scoreTotal!),
                             style: const TextStyle(
                               color: AppColors.secondary,
                               fontSize: 9,
@@ -298,7 +302,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    '${isQuiz ? '${item.questions?.length ?? 0} questions' : '${item.cards?.length ?? 0} cards'} · ${_formatDateTime(item.createdAt)}',
+                    '${isQuiz ? l10n.questionsCount(item.questions?.length ?? 0) : l10n.cardsCount(item.cards?.length ?? 0)} · ${_formatDateTime(item.createdAt)}',
                     style: theme.textTheme.bodyMedium?.copyWith(fontSize: 10.5),
                   ),
                 ],
@@ -309,7 +313,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
               onPressed: () {
                 ref.read(studyHistoryProvider.notifier).deleteHistoryItem(item.id);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('History item removed')),
+                  SnackBar(content: Text(l10n.historyItemRemoved)),
                 );
               },
             ),
@@ -321,6 +325,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
 
   Widget _buildEmptyState(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
@@ -342,12 +347,12 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              _mode == 'quiz' ? 'No quizzes yet' : 'No flashcards yet',
+              _mode == 'quiz' ? l10n.noQuizzesYet : l10n.noFlashcardsYet,
               style: theme.textTheme.titleMedium,
             ),
             const SizedBox(height: 4),
             Text(
-              'Generate your first study set from any saved note.',
+              l10n.generateFirstStudySet,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium,
             ),
@@ -387,11 +392,35 @@ class _GenerateStudySheetState extends State<GenerateStudySheet> {
     return clean.split(RegExp(r'\s+')).length;
   }
 
+  String _getLocalizedTag(String tag, AppLocalizations l10n) {
+    switch (tag) {
+      case 'General':
+        return l10n.tagGeneral;
+      case 'Math':
+        return l10n.subjectMath;
+      case 'Biology':
+        return l10n.subjectBiology;
+      case 'History':
+        return l10n.subjectHistory;
+      case 'Physics':
+        return l10n.subjectPhysics;
+      case 'Chemistry':
+        return l10n.subjectChemistry;
+      case 'Lit':
+        return l10n.subjectLiterature;
+      case 'CS':
+        return l10n.subjectCS;
+      default:
+        return tag;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final note = widget.notes.firstWhere((n) => n.id == _selectedNoteId);
+    final l10n = AppLocalizations.of(context)!;
     
     final countsList = widget.mode == 'quiz' ? [3, 5, 10, 15] : [5, 10, 15, 20];
     final noteBodyLen = note.body.trim().length;
@@ -417,7 +446,7 @@ class _GenerateStudySheetState extends State<GenerateStudySheet> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.mode == 'quiz' ? 'Generate quiz' : 'Generate flashcards',
+                widget.mode == 'quiz' ? l10n.generateQuiz : l10n.generateFlashcards,
                 style: theme.textTheme.displaySmall?.copyWith(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               IconButton(
@@ -429,9 +458,9 @@ class _GenerateStudySheetState extends State<GenerateStudySheet> {
           const SizedBox(height: 18),
 
           // Note Picker list
-          const Text(
-            'SOURCE NOTE',
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textMuted, letterSpacing: 1),
+          Text(
+            l10n.sourceNote,
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textMuted, letterSpacing: 1),
           ),
           const SizedBox(height: 8),
           Container(
@@ -449,8 +478,8 @@ class _GenerateStudySheetState extends State<GenerateStudySheet> {
                 final isSelected = _selectedNoteId == n.id;
                 return ListTile(
                   dense: true,
-                  title: Text(n.title.isEmpty ? 'Untitled' : n.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('${_getWordCount(n.body)} words · ${n.tag}', style: const TextStyle(fontSize: 11)),
+                  title: Text(n.title.isEmpty ? l10n.untitled : n.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text('${l10n.wordsCount(_getWordCount(n.body))} · ${_getLocalizedTag(n.tag, l10n)}', style: const TextStyle(fontSize: 11)),
                   trailing: Icon(
                     isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
                     color: isSelected ? AppColors.primary : Colors.grey,
@@ -468,7 +497,7 @@ class _GenerateStudySheetState extends State<GenerateStudySheet> {
 
           // Count Selector
           Text(
-            widget.mode == 'quiz' ? 'NUMBER OF QUESTIONS' : 'NUMBER OF CARDS',
+            widget.mode == 'quiz' ? l10n.numberOfQuestions : l10n.numberOfCards,
             style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textMuted, letterSpacing: 1),
           ),
           const SizedBox(height: 8),
@@ -497,15 +526,18 @@ class _GenerateStudySheetState extends State<GenerateStudySheet> {
 
           // Difficulty (Only for Quiz)
           if (widget.mode == 'quiz') ...[
-            const Text(
-              'DIFFICULTY',
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textMuted, letterSpacing: 1),
+            Text(
+              l10n.difficulty,
+              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textMuted, letterSpacing: 1),
             ),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: ['easy', 'medium', 'hard'].map((d) {
                 final isSelected = _difficulty == d;
+                final diffText = d == 'easy'
+                    ? l10n.difficultyEasy
+                    : (d == 'medium' ? l10n.difficultyMedium : l10n.difficultyHard);
                 return Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 2.0),
@@ -517,7 +549,7 @@ class _GenerateStudySheetState extends State<GenerateStudySheet> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
-                      child: Text(d[0].toUpperCase() + d.substring(1), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      child: Text(diffText, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                     ),
                   ),
                 );
@@ -543,7 +575,7 @@ class _GenerateStudySheetState extends State<GenerateStudySheet> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),
             child: Text(
-              noteBodyLen < 20 ? 'Note too short (min 20 chars)' : 'Generate',
+              noteBodyLen < 20 ? l10n.noteTooShortMin : l10n.generate,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),

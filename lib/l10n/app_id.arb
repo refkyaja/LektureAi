@@ -1,0 +1,338 @@
+{
+  "@@locale": "id",
+  "appTitle": "Lekture",
+  "readyToStudy": "Siap belajar lebih pintar?",
+  "heroDescription": "Rekam kuliah, pindai buku teks, atau ikuti kuis dalam hitungan detik.",
+  "startDictating": "Mulai Mendikte",
+  "askAi": "Tanya AI",
+  "notes": "Catatan",
+  "words": "Kata",
+  "tags": "Tag",
+  "recentNotes": "Catatan Terbaru",
+  "seeAll": "Lihat semua",
+  "noNotesYet": "Belum ada catatan",
+  "startByDictating": "Mulai dengan mendikte atau mengetik catatan pertama Anda.",
+  "captureNow": "Rekam sekarang",
+  "quickActions": "Tindakan Cepat",
+  "quizMe": "Kuis saya",
+  "fromAnyNote": "Dari catatan apa pun",
+  "scanPage": "Pindai halaman",
+  "ocrFromPhoto": "OCR dari foto",
+  
+  "settings": "Pengaturan",
+  "appearance": "Tampilan",
+  "theme": "Tema",
+  "themeDesc": "Pilih tema aplikasi",
+  "compactView": "Tampilan Kompak",
+  "compactDesc": "Kartu lebih kecil, jarak lebih rapat",
+  "notifications": "Notifikasi",
+  "quizReminders": "Pengingat Kuis",
+  "quizDesc": "Pengingat harian untuk mengulas kartu flash",
+  "studyStreaks": "Streak Belajar",
+  "streaksDesc": "Pertahankan streak belajar harian Anda",
+  "autoSave": "Simpan Otomatis",
+  "autoSaveDesc": "Menyimpan catatan saat Anda mengetik",
+  "accountActions": "Aksi Akun",
+  "switchAccount": "Beralih Akun",
+  "switchAccountDesc": "Pindah ke profil pengguna lain",
+  "logout": "Keluar Akun",
+  "logoutDesc": "Keluar dari akun saat ini",
+  "language": "Bahasa",
+  "languageDesc": "Pilih bahasa aplikasi",
+  "apiKeySettings": "Pengaturan API Key",
+  "customApiKey": "Custom Gemini API Key",
+  "customApiKeyDesc": "Gunakan API key Anda sendiri dari Google AI Studio",
+  "enterApiKey": "Masukkan API Key",
+  "activate": "Aktifkan Custom API Key",
+  "data": "Data",
+  "clearNotes": "Hapus semua catatan",
+  "clearNotesDesc": "Tindakan ini tidak dapat dibatalkan",
+  "about": "Tentang",
+  "version": "Versi",
+  "contactSupport": "Hubungi dukungan",
+  "switchSuccess": "Beralih ke akun",
+  "logoutSuccess": "Berhasil keluar akun",
+  "apiKeySaved": "API Key berhasil disimpan",
+  "apiKeyActivated": "Custom API Key diaktifkan",
+  "apiKeyDisabled": "Custom API Key dinonaktifkan",
+  "system": "Sistem",
+  "dark": "Gelap",
+  "light": "Terang",
+  "cancel": "Batal",
+  "delete": "Hapus",
+  "active": "Aktif",
+  "inactive": "Nonaktif",
+  "save": "Simpan",
+  
+  "whatCanHelp": "Apa yang bisa saya bantu hari ini?",
+  "askLekture": "Tanya Lekture...",
+  "newChat": "Obrolan Baru",
+  "searchChat": "Cari Obrolan...",
+  "history": "Riwayat",
+  "noChatsFound": "Obrolan tidak ditemukan",
+  "chatHistory": "Riwayat Obrolan",
+  "noConversationsYet": "Belum ada percakapan.",
+  "tagNotes": "Tag catatan untuk konteks",
+  "clear": "Bersihkan",
+  "done": "Selesai",
+  "online": "AKTIF",
+  "confirmLogoutDesc": "Ini akan mereset profil Anda. Catatan Anda akan tetap tersimpan secara lokal.",
+  "untitled": "Tanpa Judul",
+  "emptyNote": "Catatan kosong",
+  "today": "Hari Ini",
+  "goodMorning": "Selamat pagi",
+  "goodAfternoon": "Selamat siang",
+  "goodEvening": "Selamat sore",
+  "goodNight": "Selamat malam",
+  "createNoteFirst": "Buat catatan terlebih dahulu untuk menandainya.",
+  "useNotesReference": "Gunakan catatan ini sebagai referensi:",
+  "questionLabel": "Pertanyaan",
+  "errorOccurred": "Maaf, terjadi kesalahan",
+  "untitledChat": "Obrolan Tanpa Judul",
+  "chatDeleted": "Obrolan dihapus",
+  "supportEmailCopied": "Email dukungan disalin: support@lekture.ai",
+  "clearNotesDialogDesc": "Ini akan menghapus semua catatan, tag kustom, riwayat belajar, dan log obrolan Anda. Tindakan ini tidak dapat dibatalkan.",
+  "allDataCleared": "Semua data berhasil dihapus.",
+  "home": "Beranda",
+  "capture": "Rekam",
+  "study": "Belajar",
+  "searchNotesHint": "Cari catatan, tag...",
+  "newButton": "+ Baru",
+  "allChips": "Semua",
+  "noteDeleted": "Catatan dihapus",
+  "noMatches": "Tidak ada kecocokan",
+  "tryDifferentSearch": "Coba kata kunci pencarian lain atau pilih tag filter lain.",
+  "createNote": "Buat catatan",
+  "deleteNoteTitle": "Hapus catatan?",
+  "deleteNoteConfirm": "Apakah Anda yakin ingin menghapus \"{title}\"? Tindakan ini tidak dapat dibatalkan.",
+  "@deleteNoteConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "profile": "Profil",
+  "edit": "Ubah",
+  "profileSaved": "Profil berhasil disimpan!",
+  "displayName": "Nama tampilan",
+  "school": "Sekolah",
+  "gradeLevel": "Tingkat kelas",
+  "bio": "Biodata",
+  "favoriteSubjects": "Pelajaran favorit",
+  "subjects": "Mata Pelajaran",
+  "streak": "Streak",
+  "joined": "Bergabung",
+  "gradeMiddleSchool": "SMP",
+  "gradeHighSchool9": "SMA (Kelas 9)",
+  "gradeHighSchool10": "SMA (Kelas 10)",
+  "gradeHighSchool11": "SMA (Kelas 11)",
+  "gradeHighSchool12": "SMA (Kelas 12)",
+  "gradeUndergrad": "S1 / Sarjana",
+  "gradeGraduate": "Pascasarjana",
+  "subjectMath": "Matematika",
+  "subjectBiology": "Biologi",
+  "subjectHistory": "Sejarah",
+  "subjectPhysics": "Fisika",
+  "subjectChemistry": "Kimia",
+  "subjectLiterature": "Sastra",
+  "subjectCS": "Ilmu Komputer",
+  "subjectEconomics": "Ekonomi",
+  "subjectPsychology": "Psikologi",
+  "subjectArt": "Seni",
+  "voice": "Suara",
+  "scan": "Pindai",
+  "listening": "Mendengarkan…",
+  "tapToStartDictating": "Ketuk untuk mulai mendikte",
+  "speakClearly": "Bicara dengan jelas. Ketuk lagi untuk berhenti.",
+  "realTimeStt": "Transkripsi suara langsung",
+  "transcript": "TRANSKRIP",
+  "wordsAppearHere": "Kata-kata Anda akan muncul di sini saat Anda berbicara.",
+  "nothingToSave": "Tidak ada yang disimpan.",
+  "voiceNoteTitle": "Catatan suara {dateStr}",
+  "@voiceNoteTitle": {
+    "placeholders": {
+      "dateStr": {
+        "type": "String"
+      }
+    }
+  },
+  "saveAsNote": "Simpan sebagai Catatan",
+  "takePhoto": "Ambil Foto",
+  "chooseFromGallery": "Pilih dari Galeri",
+  "scanTextbook": "Pindai halaman buku",
+  "takePhotoOrPick": "Ambil foto atau pilih dari galeri. AI mengekstrak teks.",
+  "readingPage": "Membaca halaman…",
+  "extractedTextHint": "Teks hasil ekstraksi akan muncul di sini...",
+  "retake": "Ambil Ulang",
+  "textExtracted": "Teks berhasil diekstrak!",
+  "ocrFailed": "OCR Gagal: {error}",
+  "@ocrFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "dictationError": "Kesalahan dikte: {error}",
+  "@dictationError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "speechNotAvailable": "Pengenalan suara tidak tersedia.",
+  "scannedPageTitle": "Halaman hasil pindai",
+  "newNote": "Catatan baru",
+  "noteCopied": "Catatan disalin ke papan klip",
+  "studyThisNote": "Pelajari Catatan ini",
+  "generateQuiz": "Buat Kuis",
+  "practiceMcq": "Latihan soal pilihan ganda",
+  "generateFlashcards": "Buat Kartu Flash",
+  "reviewTerms": "Tinjau istilah dan konsep utama",
+  "studyThisNoteOption": "Pelajari catatan ini",
+  "copyText": "Salin teks",
+  "deleteNoteOption": "Hapus catatan",
+  "deleteConfirmShort": "Tindakan ini tidak dapat dibatalkan. Apakah Anda yakin?",
+  "tagNameHint": "Nama tag",
+  "tagOption": "Tag",
+  "startWritingOrDictating": "Mulai menulis atau mendikte...",
+  "wordsCount": "{count} kata",
+  "@wordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "charsCount": "{count} karakter",
+  "@charsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noteTooShort": "Catatan terlalu pendek untuk dipelajari (min. 20 karakter).",
+  "quiz": "Kuis",
+  "tagGeneral": "Umum",
+  "quizzes": "Kuis",
+  "flashcards": "Kartu Flash",
+  "generateNewQuiz": "Buat kuis baru",
+  "pickNoteCustomize": "Pilih catatan + sesuaikan",
+  "historyHeader": "RIWAYAT · {count}",
+  "@historyHeader": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "questionsCount": "{count} soal",
+  "@questionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cardsCount": "{count} kartu",
+  "@cardsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historyItemRemoved": "Riwayat belajar dihapus",
+  "noQuizzesYet": "Belum ada kuis",
+  "noFlashcardsYet": "Belum ada kartu flash",
+  "generateFirstStudySet": "Buat set belajar pertama Anda dari catatan yang disimpan.",
+  "sourceNote": "SUMBER CATATAN",
+  "numberOfQuestions": "JUMLAH SOAL",
+  "numberOfCards": "JUMLAH KARTU",
+  "difficulty": "KESULITAN",
+  "difficultyEasy": "Mudah",
+  "difficultyMedium": "Sedang",
+  "difficultyHard": "Sulit",
+  "generate": "Buat",
+  "noteTooShortMin": "Catatan terlalu pendek (min. 20 kar.)",
+  "pleaseCreateNoteFirst": "Silakan buat catatan terlebih dahulu.",
+  "scoreLabel": "Skor {score}/{total}",
+  "@scoreLabel": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "flashcardsUpper": "KARTU FLASH",
+  "extractingConcepts": "Mengekstrak konsep utama…",
+  "extractionFailed": "Ekstraksi Gagal",
+  "tryAgain": "Coba Lagi",
+  "noFlashcardsLoaded": "Tidak ada kartu flash yang dimuat.",
+  "cardNumberProgress": "{current} dari {total}",
+  "@cardNumberProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "regenerate": "Buat Ulang",
+  "showTerm": "Tampilkan istilah",
+  "showDefinition": "Tampilkan definisi",
+  "definitionUpper": "DEFINISI",
+  "termUpper": "ISTILAH",
+  "tapToFlip": "Ketuk untuk memutar",
+  "quizUpper": "KUIS",
+  "aiCraftingQuiz": "AI sedang membuat kuis Anda…",
+  "generationFailed": "Pembuatan Gagal",
+  "noQuestionsLoaded": "Tidak ada soal yang dimuat.",
+  "quizCompleteUpper": "KUIS SELESAI",
+  "percentCorrect": "{percentage}% benar",
+  "@percentCorrect": {
+    "placeholders": {
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "newQuiz": "Kuis Baru",
+  "questionNumberProgress": "Soal {current} dari {total}",
+  "@questionNumberProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "correctCount": "{count} benar",
+  "@correctCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seeResults": "Lihat hasil",
+  "next": "Selanjutnya",
+  "streakDays": "{count} hari",
+  "@streakDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

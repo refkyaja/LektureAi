@@ -1,0 +1,338 @@
+{
+  "@@locale": "en",
+  "appTitle": "Lekture",
+  "readyToStudy": "Ready to study smarter?",
+  "heroDescription": "Capture a lecture, scan your textbook, or quiz yourself in seconds.",
+  "startDictating": "Start Dictating",
+  "askAi": "Ask AI",
+  "notes": "Notes",
+  "words": "Words",
+  "tags": "Tags",
+  "recentNotes": "Recent Notes",
+  "seeAll": "See all",
+  "noNotesYet": "No notes yet",
+  "startByDictating": "Start by dictating or typing your first note.",
+  "captureNow": "Capture now",
+  "quickActions": "Quick Actions",
+  "quizMe": "Quiz me",
+  "fromAnyNote": "From any note",
+  "scanPage": "Scan page",
+  "ocrFromPhoto": "OCR from photo",
+  
+  "settings": "Settings",
+  "appearance": "Appearance",
+  "theme": "Theme",
+  "themeDesc": "Select application theme",
+  "compactView": "Compact view",
+  "compactDesc": "Smaller cards, tighter spacing",
+  "notifications": "Notifications",
+  "quizReminders": "Quiz reminders",
+  "quizDesc": "Daily prompt to review flashcards",
+  "studyStreaks": "Study streaks",
+  "streaksDesc": "Keep your daily streak alive",
+  "autoSave": "Auto-save notes",
+  "autoSaveDesc": "Save while you type",
+  "accountActions": "Account Actions",
+  "switchAccount": "Switch Account",
+  "switchAccountDesc": "Change to another user profile",
+  "logout": "Sign Out",
+  "logoutDesc": "Sign out of the current account",
+  "language": "Language",
+  "languageDesc": "Select application language",
+  "apiKeySettings": "API Key Settings",
+  "customApiKey": "Custom Gemini API Key",
+  "customApiKeyDesc": "Use your own API key from Google AI Studio",
+  "enterApiKey": "Enter API Key",
+  "activate": "Activate Custom API Key",
+  "data": "Data",
+  "clearNotes": "Clear all notes",
+  "clearNotesDesc": "This action cannot be undone",
+  "about": "About",
+  "version": "Version",
+  "contactSupport": "Contact support",
+  "switchSuccess": "Switched to account",
+  "logoutSuccess": "Logged out successfully",
+  "apiKeySaved": "API Key saved successfully",
+  "apiKeyActivated": "Custom API Key activated",
+  "apiKeyDisabled": "Custom API Key disabled",
+  "system": "System",
+  "dark": "Dark",
+  "light": "Light",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "active": "Active",
+  "inactive": "Inactive",
+  "save": "Save",
+  
+  "whatCanHelp": "What can I help with today?",
+  "askLekture": "Ask Lekture...",
+  "newChat": "New Chat",
+  "searchChat": "Search Chat...",
+  "history": "History",
+  "noChatsFound": "No chats found",
+  "chatHistory": "Chat History",
+  "noConversationsYet": "No conversations yet.",
+  "tagNotes": "Tag notes for context",
+  "clear": "Clear",
+  "done": "Done",
+  "online": "ONLINE",
+  "confirmLogoutDesc": "This will reset your profile. Your notes will remain saved locally.",
+  "untitled": "Untitled",
+  "emptyNote": "Empty note",
+  "today": "Today",
+  "goodMorning": "Good morning",
+  "goodAfternoon": "Good afternoon",
+  "goodEvening": "Good evening",
+  "goodNight": "Good night",
+  "createNoteFirst": "Create a note first to tag it.",
+  "useNotesReference": "Use these notes as reference:",
+  "questionLabel": "Question",
+  "errorOccurred": "Sorry, I hit an error",
+  "untitledChat": "Untitled Chat",
+  "chatDeleted": "Chat deleted",
+  "supportEmailCopied": "Support email copied: support@lekture.ai",
+  "clearNotesDialogDesc": "This will delete all your notes, custom tags, study history, and chat logs. This cannot be undone.",
+  "allDataCleared": "All data cleared successfully.",
+  "home": "Home",
+  "capture": "Capture",
+  "study": "Study",
+  "searchNotesHint": "Search notes, tags...",
+  "newButton": "+ New",
+  "allChips": "All",
+  "noteDeleted": "Note deleted",
+  "noMatches": "No matches",
+  "tryDifferentSearch": "Try a different search query or select another filter tag.",
+  "createNote": "Create note",
+  "deleteNoteTitle": "Delete note?",
+  "deleteNoteConfirm": "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
+  "@deleteNoteConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "profile": "Profile",
+  "edit": "Edit",
+  "profileSaved": "Profile saved successfully!",
+  "displayName": "Display name",
+  "school": "School",
+  "gradeLevel": "Grade level",
+  "bio": "Bio",
+  "favoriteSubjects": "Favorite subjects",
+  "subjects": "Subjects",
+  "streak": "Streak",
+  "joined": "Joined",
+  "gradeMiddleSchool": "Middle School",
+  "gradeHighSchool9": "High School (9th)",
+  "gradeHighSchool10": "High School (10th)",
+  "gradeHighSchool11": "High School (11th)",
+  "gradeHighSchool12": "High School (12th)",
+  "gradeUndergrad": "Undergrad",
+  "gradeGraduate": "Graduate",
+  "subjectMath": "Math",
+  "subjectBiology": "Biology",
+  "subjectHistory": "History",
+  "subjectPhysics": "Physics",
+  "subjectChemistry": "Chemistry",
+  "subjectLiterature": "Literature",
+  "subjectCS": "CS",
+  "subjectEconomics": "Economics",
+  "subjectPsychology": "Psychology",
+  "subjectArt": "Art",
+  "voice": "Voice",
+  "scan": "Scan",
+  "listening": "Listening…",
+  "tapToStartDictating": "Tap to start dictating",
+  "speakClearly": "Speak clearly. Tap again to stop.",
+  "realTimeStt": "Real-time speech-to-text",
+  "transcript": "TRANSCRIPT",
+  "wordsAppearHere": "Your words will appear here as you speak.",
+  "nothingToSave": "Nothing to save.",
+  "voiceNoteTitle": "Voice note {dateStr}",
+  "@voiceNoteTitle": {
+    "placeholders": {
+      "dateStr": {
+        "type": "String"
+      }
+    }
+  },
+  "saveAsNote": "Save as Note",
+  "takePhoto": "Take Photo",
+  "chooseFromGallery": "Choose from Gallery",
+  "scanTextbook": "Scan a textbook page",
+  "takePhotoOrPick": "Take a photo or pick from gallery. AI extracts the text.",
+  "readingPage": "Reading page…",
+  "extractedTextHint": "Extracted text will appear here...",
+  "retake": "Retake",
+  "textExtracted": "Text extracted successfully!",
+  "ocrFailed": "OCR Failed: {error}",
+  "@ocrFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "dictationError": "Dictation error: {error}",
+  "@dictationError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "speechNotAvailable": "Speech recognition is not available.",
+  "scannedPageTitle": "Scanned page",
+  "newNote": "New note",
+  "noteCopied": "Note copied to clipboard",
+  "studyThisNote": "Study this Note",
+  "generateQuiz": "Generate Quiz",
+  "practiceMcq": "Practice multiple-choice questions",
+  "generateFlashcards": "Generate Flashcards",
+  "reviewTerms": "Review terms and key concepts",
+  "studyThisNoteOption": "Study this note",
+  "copyText": "Copy text",
+  "deleteNoteOption": "Delete note",
+  "deleteConfirmShort": "This action cannot be undone. Are you sure?",
+  "tagNameHint": "Tag name",
+  "tagOption": "Tag",
+  "startWritingOrDictating": "Start writing or dictating...",
+  "wordsCount": "{count} words",
+  "@wordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "charsCount": "{count} chars",
+  "@charsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noteTooShort": "Note too short to study (min 20 characters).",
+  "quiz": "Quiz",
+  "tagGeneral": "General",
+  "quizzes": "Quizzes",
+  "flashcards": "Flashcards",
+  "generateNewQuiz": "Generate new quiz",
+  "pickNoteCustomize": "Pick a note + customize",
+  "historyHeader": "HISTORY · {count}",
+  "@historyHeader": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "questionsCount": "{count} questions",
+  "@questionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cardsCount": "{count} cards",
+  "@cardsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historyItemRemoved": "History item removed",
+  "noQuizzesYet": "No quizzes yet",
+  "noFlashcardsYet": "No flashcards yet",
+  "generateFirstStudySet": "Generate your first study set from any saved note.",
+  "sourceNote": "SOURCE NOTE",
+  "numberOfQuestions": "NUMBER OF QUESTIONS",
+  "numberOfCards": "NUMBER OF CARDS",
+  "difficulty": "DIFFICULTY",
+  "difficultyEasy": "Easy",
+  "difficultyMedium": "Medium",
+  "difficultyHard": "Hard",
+  "generate": "Generate",
+  "noteTooShortMin": "Note too short (min 20 chars)",
+  "pleaseCreateNoteFirst": "Please create a note first.",
+  "scoreLabel": "Score {score}/{total}",
+  "@scoreLabel": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "flashcardsUpper": "FLASHCARDS",
+  "extractingConcepts": "Extracting key concepts…",
+  "extractionFailed": "Extraction Failed",
+  "tryAgain": "Try Again",
+  "noFlashcardsLoaded": "No flashcards loaded.",
+  "cardNumberProgress": "{current} of {total}",
+  "@cardNumberProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "regenerate": "Regenerate",
+  "showTerm": "Show term",
+  "showDefinition": "Show definition",
+  "definitionUpper": "DEFINITION",
+  "termUpper": "TERM",
+  "tapToFlip": "Tap to flip",
+  "quizUpper": "QUIZ",
+  "aiCraftingQuiz": "AI is crafting your quiz…",
+  "generationFailed": "Generation Failed",
+  "noQuestionsLoaded": "No questions loaded.",
+  "quizCompleteUpper": "QUIZ COMPLETE",
+  "percentCorrect": "{percentage}% correct",
+  "@percentCorrect": {
+    "placeholders": {
+      "percentage": {
+        "type": "int"
+      }
+    }
+  },
+  "newQuiz": "New Quiz",
+  "questionNumberProgress": "Question {current} of {total}",
+  "@questionNumberProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "correctCount": "{count} correct",
+  "@correctCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seeResults": "See results",
+  "next": "Next",
+  "streakDays": "{count} days",
+  "@streakDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

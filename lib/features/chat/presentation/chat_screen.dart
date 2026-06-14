@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../../../theme.dart';
 import '../../shared/providers/global_providers.dart';
 import '../domain/chat_model.dart';
@@ -56,17 +57,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     final msgs = activeSession?.messages ?? [];
 
+    final l10n = AppLocalizations.of(context)!;
     // Build context if notes selected
     String userContent = text;
     final selectedNotes = notes.where((n) => _selectedNoteIds.contains(n.id)).toList();
     if (selectedNotes.isNotEmpty && msgs.isEmpty) {
       final contextBuffer = StringBuffer();
       for (final n in selectedNotes) {
-        contextBuffer.writeln('### ${n.title.isEmpty ? 'Untitled' : n.title} (${n.tag})');
+        contextBuffer.writeln('### ${n.title.isEmpty ? l10n.untitled : n.title} (${n.tag})');
         contextBuffer.writeln(n.body);
         contextBuffer.writeln();
       }
-      userContent = 'Use these notes as reference:\n\n$contextBuffer---\n\nQuestion: $text';
+      userContent = '${l10n.useNotesReference}\n\n$contextBuffer---\n\n${l10n.questionLabel}: $text';
     }
 
     final newMsgUser = ChatMessage(role: 'user', content: text);
@@ -116,7 +118,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       );
       await ref.read(chatSessionsProvider.notifier).saveSession(finalSession);
     } catch (e) {
-      final errorMsg = ChatMessage(role: 'assistant', content: 'Sorry, I hit an error: ${e.toString().replaceFirst("Exception: ", "")}. Please try again.');
+      final errorMsg = ChatMessage(role: 'assistant', content: '${l10n.errorOccurred}: ${e.toString().replaceFirst("Exception: ", "")}');
       final currentSessions = ref.read(chatSessionsProvider);
       final activeSessObj = currentSessions.firstWhere((s) => s.id == sessId);
       final errorSession = activeSessObj.copyWith(
@@ -130,9 +132,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   void _openNotePicker(BuildContext context, List<Note> notes) {
+    final l10n = AppLocalizations.of(context)!;
     if (notes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Create a note first to tag it.')),
+        SnackBar(content: Text(l10n.createNoteFirst)),
       );
       return;
     }
@@ -166,9 +169,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Tag notes for context',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.text),
+                  Text(
+                    l10n.tagNotes,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.text),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),
@@ -190,7 +193,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       dense: true,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       tileColor: isChecked ? AppColors.primary.withOpacity(0.1) : Colors.transparent,
-                      title: Text(n.title.isEmpty ? 'Untitled' : n.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      title: Text(n.title.isEmpty ? l10n.untitled : n.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: Text(n.tag, style: const TextStyle(fontSize: 11)),
                       trailing: Checkbox(
                         value: isChecked,
@@ -235,7 +238,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: const Text('Clear', style: TextStyle(color: Colors.white)),
+                      child: Text(l10n.clear, style: const TextStyle(color: Colors.white)),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -245,7 +248,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: Text('Done (${_selectedNoteIds.length})'),
+                      child: Text('${l10n.done} (${_selectedNoteIds.length})'),
                     ),
                   ),
                 ],
@@ -257,16 +260,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  String _getGreeting(String name) {
+  String _getGreeting(String name, AppLocalizations l10n) {
     final hour = DateTime.now().hour;
     if (hour >= 5 && hour < 12) {
-      return 'Good morning, $name';
+      return '${l10n.goodMorning}, $name';
     } else if (hour >= 12 && hour < 17) {
-      return 'Good afternoon, $name';
+      return '${l10n.goodAfternoon}, $name';
     } else if (hour >= 17 && hour < 21) {
-      return 'Good evening, $name';
+      return '${l10n.goodEvening}, $name';
     } else {
-      return 'Good night, $name';
+      return '${l10n.goodNight}, $name';
     }
   }
 
@@ -337,14 +340,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               maxLines: 5,
               minLines: 1,
               style: const TextStyle(fontSize: 14),
-              decoration: const InputDecoration(
-                hintText: 'Ask Lekture...',
-                fillColor: Colors.transparent,
-                filled: true,
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.askLekture,
+                filled: false,
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                hoverColor: Colors.transparent,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
               ),
             ),
           ),
@@ -373,6 +376,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final notes = ref.watch(notesProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     final activeSession = activeSessionId != null
         ? sessions.firstWhere((s) => s.id == activeSessionId, orElse: () => ChatSession(id: '', title: '', updatedAt: 0, messages: [], noteIds: []))
@@ -415,20 +419,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    activeSession != null && activeSession.title.isNotEmpty ? activeSession.title : 'Lekture Tutor',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleMedium?.copyWith(fontSize: 14),
-                  ),
-                  const Text(
-                    'ONLINE',
-                    style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: AppColors.success, letterSpacing: 0.8),
-                  ),
-                ],
+              child: Text(
+                activeSession != null && activeSession.title.isNotEmpty ? activeSession.title : '${l10n.appTitle} Tutor',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleMedium?.copyWith(fontSize: 14),
               ),
             ),
           ],
@@ -451,7 +446,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   itemBuilder: (context, index) {
                     final n = selectedNotes[index];
                     return InputChip(
-                      label: Text(n.title.isEmpty ? 'Untitled' : n.title, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
+                      label: Text(n.title.isEmpty ? l10n.untitled : n.title, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
                       backgroundColor: AppColors.primary.withOpacity(0.15),
                       labelStyle: const TextStyle(color: AppColors.secondary),
                       onDeleted: () {
@@ -567,7 +562,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget _buildEmptyState(BuildContext context, List<Note> notes, bool isDark) {
     final theme = Theme.of(context);
     final profile = ref.watch(profileProvider);
-    final greeting = _getGreeting(profile.name);
+    final l10n = AppLocalizations.of(context)!;
+    final greeting = _getGreeting(profile.name, l10n);
 
     return Center(
       child: SingleChildScrollView(
@@ -600,7 +596,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'What can I help with today?',
+              l10n.whatCanHelp,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontSize: 13,

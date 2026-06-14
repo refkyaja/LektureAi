@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../../../theme.dart';
 import '../../shared/providers/global_providers.dart';
 import '../domain/profile_model.dart';
@@ -56,7 +57,56 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.dispose();
   }
 
+  String _getLocalizedGrade(String grade, AppLocalizations l10n) {
+    switch (grade) {
+      case "Middle School":
+        return l10n.gradeMiddleSchool;
+      case "High School (9th)":
+        return l10n.gradeHighSchool9;
+      case "High School (10th)":
+        return l10n.gradeHighSchool10;
+      case "High School (11th)":
+        return l10n.gradeHighSchool11;
+      case "High School (12th)":
+        return l10n.gradeHighSchool12;
+      case "Undergrad":
+        return l10n.gradeUndergrad;
+      case "Graduate":
+        return l10n.gradeGraduate;
+      default:
+        return grade;
+    }
+  }
+
+  String _getLocalizedSubject(String subject, AppLocalizations l10n) {
+    switch (subject) {
+      case "Math":
+        return l10n.subjectMath;
+      case "Biology":
+        return l10n.subjectBiology;
+      case "History":
+        return l10n.subjectHistory;
+      case "Physics":
+        return l10n.subjectPhysics;
+      case "Chemistry":
+        return l10n.subjectChemistry;
+      case "Literature":
+        return l10n.subjectLiterature;
+      case "CS":
+        return l10n.subjectCS;
+      case "Economics":
+        return l10n.subjectEconomics;
+      case "Psychology":
+        return l10n.subjectPsychology;
+      case "Art":
+        return l10n.subjectArt;
+      default:
+        return subject;
+    }
+  }
+
   void _saveProfile() {
+    final l10n = AppLocalizations.of(context)!;
     final updatedProfile = ProfileData(
       name: _nameController.text.trim().isEmpty ? 'Lekture User' : _nameController.text.trim(),
       email: _emailController.text.trim().isEmpty ? 'student@example.com' : _emailController.text.trim(),
@@ -72,7 +122,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile saved successfully!')),
+      SnackBar(content: Text(l10n.profileSaved)),
     );
   }
 
@@ -97,11 +147,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Profile',
+          l10n.profile,
           style: theme.textTheme.displaySmall?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
@@ -114,7 +165,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           if (_isEditing)
             TextButton(
               onPressed: _saveProfile,
-              child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
+              child: Text(l10n.save, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
             )
           else
             TextButton(
@@ -123,7 +174,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   _isEditing = true;
                 });
               },
-              child: const Text('Edit', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
+              child: Text(l10n.edit, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
             ),
         ],
       ),
@@ -185,7 +236,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             if (_isEditing) ...[
               // Display name Field
-              _buildTextField('Display name', _nameController, 'e.g. Lekture User'),
+              _buildTextField(l10n.displayName, _nameController, 'e.g. Lekture User'),
               const SizedBox(height: 14),
               
               // Email Field
@@ -193,11 +244,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               const SizedBox(height: 14),
 
               // School Field
-              _buildTextField('School', _schoolController, 'e.g. Lincoln High School'),
+              _buildTextField(l10n.school, _schoolController, 'e.g. Lincoln High School'),
               const SizedBox(height: 14),
 
               // Grade Level Selector
-              _buildSectionTitle('Grade level'),
+              _buildSectionTitle(l10n.gradeLevel),
               const SizedBox(height: 6),
               Wrap(
                 spacing: 6,
@@ -205,7 +256,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 children: _grades.map((g) {
                   final isSelected = _selectedGrade == g;
                   return ChoiceChip(
-                    label: Text(g, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : theme.textTheme.bodyLarge?.color)),
+                    label: Text(_getLocalizedGrade(g, l10n), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : theme.textTheme.bodyLarge?.color)),
                     selected: isSelected,
                     selectedColor: AppColors.primary,
                     backgroundColor: isDark ? AppColors.surface : Colors.grey[200],
@@ -220,11 +271,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               const SizedBox(height: 14),
 
               // Bio Field
-              _buildTextField('Bio', _bioController, 'Tell us about your study goals...', maxLines: 3),
+              _buildTextField(l10n.bio, _bioController, 'Tell us about your study goals...', maxLines: 3),
               const SizedBox(height: 14),
 
               // Favorite Subjects Selector
-              _buildSectionTitle('Favorite subjects'),
+              _buildSectionTitle(l10n.favoriteSubjects),
               const SizedBox(height: 6),
               Wrap(
                 spacing: 6,
@@ -232,7 +283,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 children: _subjects.map((s) {
                   final isSelected = _selectedSubjects.contains(s);
                   return FilterChip(
-                    label: Text(s, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : theme.textTheme.bodyLarge?.color)),
+                    label: Text(_getLocalizedSubject(s, l10n), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : theme.textTheme.bodyLarge?.color)),
                     selected: isSelected,
                     selectedColor: AppColors.primary,
                     backgroundColor: isDark ? AppColors.surface : Colors.grey[200],
@@ -243,16 +294,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             ] else ...[
               // Read mode rows
-              _buildReadRow('School', profile.school.isEmpty ? '—' : profile.school, isDark),
+              _buildReadRow(l10n.school, profile.school.isEmpty ? '—' : profile.school, isDark),
               const SizedBox(height: 10),
-              _buildReadRow('Grade', profile.grade.isEmpty ? '—' : profile.grade, isDark),
+              _buildReadRow(l10n.gradeLevel, profile.grade.isEmpty ? '—' : _getLocalizedGrade(profile.grade, l10n), isDark),
               const SizedBox(height: 10),
-              _buildReadRow('Bio', profile.bio.isEmpty ? '—' : profile.bio, isDark, multiline: true),
+              _buildReadRow(l10n.bio, profile.bio.isEmpty ? '—' : profile.bio, isDark, multiline: true),
               const SizedBox(height: 14),
 
               // Subjects Chips View
               if (profile.subjects.isNotEmpty) ...[
-                _buildSectionTitle('Subjects'),
+                _buildSectionTitle(l10n.subjects),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 6,
@@ -266,7 +317,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         border: Border.all(color: AppColors.primary.withOpacity(0.2)),
                       ),
                       child: Text(
-                        s,
+                        _getLocalizedSubject(s, l10n),
                         style: const TextStyle(
                           color: AppColors.secondary,
                           fontSize: 11,
@@ -282,11 +333,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               // Stat boxes
               Row(
                 children: [
-                  Expanded(child: _buildStatBox('Notes', '${notes.length}', isDark)),
+                  Expanded(child: _buildStatBox(l10n.notes, '${notes.length}', isDark)),
                   const SizedBox(width: 10),
-                  Expanded(child: _buildStatBox('Streak', '$streak days', isDark)),
+                  Expanded(child: _buildStatBox(l10n.streak, l10n.streakDays(streak), isDark)),
                   const SizedBox(width: 10),
-                  Expanded(child: _buildStatBox('Joined', joined, isDark)),
+                  Expanded(child: _buildStatBox(l10n.joined, joined, isDark)),
                 ],
               ),
             ],

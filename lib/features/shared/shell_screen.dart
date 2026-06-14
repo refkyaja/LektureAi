@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../../theme.dart';
 import '../chat/presentation/widgets/chat_drawer.dart';
 
@@ -24,6 +25,7 @@ class ShellScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       extendBody: true,
@@ -63,11 +65,11 @@ class ShellScreen extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildNavItem(context, 0, Icons.home_filled, 'Home', navigationShell.currentIndex == 0),
-                  _buildNavItem(context, 1, Icons.description_rounded, 'Notes', navigationShell.currentIndex == 1),
-                  _buildCenterNavItem(context, 2, Icons.mic_rounded, 'Capture', navigationShell.currentIndex == 2),
-                  _buildNavItem(context, 3, Icons.psychology_rounded, 'Study', navigationShell.currentIndex == 3),
-                  _buildNavItem(context, 4, Icons.auto_awesome_rounded, 'Ask AI', navigationShell.currentIndex == 4),
+                  _buildNavItem(context, 0, Icons.home_filled, l10n.home, navigationShell.currentIndex == 0),
+                  _buildNavItem(context, 1, Icons.description_rounded, l10n.notes, navigationShell.currentIndex == 1),
+                  _buildCenterNavItem(context, 2, Icons.mic_rounded, l10n.capture, navigationShell.currentIndex == 2),
+                  _buildNavItem(context, 3, Icons.psychology_rounded, l10n.study, navigationShell.currentIndex == 3),
+                  _buildNavItem(context, 4, Icons.auto_awesome_rounded, l10n.askAi, navigationShell.currentIndex == 4),
                 ],
               ),
             ),

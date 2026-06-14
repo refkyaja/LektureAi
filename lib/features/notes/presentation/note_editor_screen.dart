@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
+import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../../../theme.dart';
 import '../../shared/providers/global_providers.dart';
 import '../domain/note_model.dart';
@@ -46,7 +47,7 @@ class _ProfileHeader extends StatelessWidget {
         ),
         const SizedBox(height: 2),
         Text(
-          noteTitle.isEmpty ? 'Untitled' : noteTitle,
+          noteTitle,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: theme.textTheme.titleMedium?.copyWith(fontSize: 12),
@@ -143,12 +144,36 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     }
   }
 
+  String _getLocalizedTag(String tag, AppLocalizations l10n) {
+    switch (tag) {
+      case 'General':
+        return l10n.tagGeneral;
+      case 'Math':
+        return l10n.subjectMath;
+      case 'Biology':
+        return l10n.subjectBiology;
+      case 'History':
+        return l10n.subjectHistory;
+      case 'Physics':
+        return l10n.subjectPhysics;
+      case 'Chemistry':
+        return l10n.subjectChemistry;
+      case 'Lit':
+        return l10n.subjectLiterature;
+      case 'CS':
+        return l10n.subjectCS;
+      default:
+        return tag;
+    }
+  }
+
   Future<void> _saveNote() async {
     _debounceTimer?.cancel();
     final now = DateTime.now().millisecondsSinceEpoch;
+    final l10n = AppLocalizations.of(context)!;
     final note = Note(
       id: _id,
-      title: _titleController.text.trim().isEmpty ? 'Untitled' : _titleController.text.trim(),
+      title: _titleController.text.trim().isEmpty ? l10n.untitled : _titleController.text.trim(),
       body: _bodyController.text,
       tag: _selectedTag,
       createdAt: _isNew ? now : ref.read(notesProvider).firstWhere((n) => n.id == _id).createdAt,
@@ -183,25 +208,27 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   }
 
   void _copyToClipboard() {
+    final l10n = AppLocalizations.of(context)!;
     Clipboard.setData(ClipboardData(text: _bodyController.text));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Note copied to clipboard')),
+      SnackBar(content: Text(l10n.noteCopied)),
     );
   }
 
   void _deleteNote() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete note?', style: TextStyle(fontSize: 18)),
-        content: const Text(
-          'This action cannot be undone. Are you sure?',
-          style: TextStyle(fontSize: 13.5),
+        title: Text(l10n.deleteNoteTitle, style: const TextStyle(fontSize: 18)),
+        content: Text(
+          l10n.deleteConfirmShort,
+          style: const TextStyle(fontSize: 13.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -209,11 +236,11 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
               Navigator.of(context).pop(); // Dismiss dialog
               context.pop(); // Go back to list
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Note deleted')),
+                SnackBar(content: Text(l10n.noteDeleted)),
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -221,10 +248,11 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
   }
 
   void _openStudyPicker() {
+    final l10n = AppLocalizations.of(context)!;
     // If note is saved and not too short (React: min 20 chars)
     if (_bodyController.text.trim().length < 20) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Note too short to study (min 20 characters).')),
+        SnackBar(content: Text(l10n.noteTooShort)),
       );
       return;
     }
@@ -244,15 +272,15 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Study this Note',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.text),
+            Text(
+              l10n.studyThisNote,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.text),
             ),
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.psychology_rounded, color: AppColors.primary),
-              title: const Text('Generate Quiz', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-              subtitle: const Text('Practice multiple-choice questions', style: TextStyle(fontSize: 11)),
+              title: Text(l10n.generateQuiz, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              subtitle: Text(l10n.practiceMcq, style: const TextStyle(fontSize: 11)),
               onTap: () {
                 Navigator.of(context).pop();
                 context.push('/study/quiz?noteId=$_id&difficulty=medium&count=5');
@@ -260,8 +288,8 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.card_membership_rounded, color: AppColors.secondary),
-              title: const Text('Generate Flashcards', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-              subtitle: const Text('Review terms and key concepts', style: TextStyle(fontSize: 11)),
+              title: Text(l10n.generateFlashcards, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              subtitle: Text(l10n.reviewTerms, style: const TextStyle(fontSize: 11)),
               onTap: () {
                 Navigator.of(context).pop();
                 context.push('/study/flashcard?noteId=$_id&count=10');
@@ -279,11 +307,12 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
     final allTags = [..._defaultTags, ...customTags].toSet().toList();
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     final note = _isNew ? null : ref.read(notesProvider).firstWhere((n) => n.id == _id);
     final dateText = note != null
         ? DateFormat('MMM d, yyyy').format(DateTime.fromMillisecondsSinceEpoch(note.updatedAt))
-        : 'New note';
+        : l10n.newNote;
 
     return Scaffold(
       appBar: AppBar(
@@ -298,7 +327,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
             if (context.mounted) context.pop();
           },
         ),
-        title: _ProfileHeader(dateText: dateText, noteTitle: _titleController.text),
+        title: _ProfileHeader(dateText: dateText, noteTitle: _titleController.text.isEmpty ? l10n.untitled : _titleController.text),
         actions: [
           if (_isDirty)
             Padding(
@@ -311,7 +340,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: const Text('Save', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                child: Text(l10n.save, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
               ),
             ),
           PopupMenuButton<String>(
@@ -333,7 +362,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                   children: [
                     const Icon(Icons.psychology_rounded, size: 18, color: AppColors.accent),
                     const SizedBox(width: 8),
-                    Text('Study this note', style: TextStyle(fontSize: 13, color: isDark ? AppColors.text : Colors.black87)),
+                    Text(l10n.studyThisNoteOption, style: TextStyle(fontSize: 13, color: isDark ? AppColors.text : Colors.black87)),
                   ],
                 ),
               ),
@@ -343,7 +372,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                   children: [
                     const Icon(Icons.copy_rounded, size: 18, color: AppColors.secondary),
                     const SizedBox(width: 8),
-                    Text('Copy text', style: TextStyle(fontSize: 13, color: isDark ? AppColors.text : Colors.black87)),
+                    Text(l10n.copyText, style: TextStyle(fontSize: 13, color: isDark ? AppColors.text : Colors.black87)),
                   ],
                 ),
               ),
@@ -351,10 +380,10 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                 PopupMenuItem(
                   value: 'delete',
                   child: Row(
-                    children: const [
-                      Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.error),
-                      SizedBox(width: 8),
-                      Text('Delete note', style: TextStyle(fontSize: 13, color: AppColors.error, fontWeight: FontWeight.bold)),
+                    children: [
+                      const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.error),
+                      const SizedBox(width: 8),
+                      Text(l10n.deleteNoteOption, style: const TextStyle(fontSize: 13, color: AppColors.error, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -378,8 +407,8 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
                       ),
-                      decoration: const InputDecoration(
-                        hintText: 'Untitled',
+                      decoration: InputDecoration(
+                        hintText: l10n.untitled,
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
@@ -422,7 +451,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    t,
+                                    _getLocalizedTag(t, l10n),
                                     style: TextStyle(
                                       color: isSelected ? Colors.white : theme.textTheme.bodyLarge?.color,
                                       fontSize: 10.5,
@@ -471,8 +500,8 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                                     controller: _newTagController,
                                     autofocus: true,
                                     style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                                    decoration: const InputDecoration(
-                                      hintText: 'Tag name',
+                                    decoration: InputDecoration(
+                                      hintText: l10n.tagNameHint,
                                       border: InputBorder.none,
                                       enabledBorder: InputBorder.none,
                                       focusedBorder: InputBorder.none,
@@ -507,7 +536,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                               });
                             },
                             icon: const Icon(Icons.add_rounded, size: 12),
-                            label: const Text('Tag', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
+                            label: Text(l10n.tagOption, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(
                                 color: isDark ? Colors.white.withOpacity(0.15) : Colors.black.withOpacity(0.15),
@@ -534,8 +563,8 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                         fontSize: 14.5,
                         height: 1.5,
                       ),
-                      decoration: const InputDecoration(
-                        hintText: 'Start writing or dictating...',
+                      decoration: InputDecoration(
+                        hintText: l10n.startWritingOrDictating,
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
@@ -561,14 +590,14 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
               child: Row(
                 children: [
                   Text(
-                    '$_wordCount words',
+                    l10n.wordsCount(_wordCount),
                     style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
                   ),
                   const SizedBox(width: 8),
                   const Text('·', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
                   const SizedBox(width: 8),
                   Text(
-                    '$_charCount chars',
+                    l10n.charsCount(_charCount),
                     style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
                   ),
                 ],

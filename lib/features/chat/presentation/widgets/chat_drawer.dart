@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../../../../theme.dart';
 import '../../../../features/shared/providers/global_providers.dart';
 
@@ -26,6 +27,7 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final activeSessionId = ref.watch(activeChatSessionIdProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     final filteredSessions = sessions.where((s) {
       if (_searchQuery.isEmpty) return true;
@@ -42,7 +44,7 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
               child: Text(
-                'Lekture AI',
+                '${l10n.appTitle} AI',
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: AppColors.primary,
                   fontSize: 20,
@@ -60,7 +62,7 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
                   Navigator.pop(context);
                 },
                 icon: const Icon(Icons.add_rounded),
-                label: const Text('New Chat'),
+                label: Text(l10n.newChat),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary.withOpacity(0.15),
                   foregroundColor: AppColors.primary,
@@ -86,7 +88,7 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
                 },
                 style: const TextStyle(fontSize: 13),
                 decoration: InputDecoration(
-                  hintText: 'Search Chat...',
+                  hintText: l10n.searchChat,
                   prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppColors.textMuted),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
@@ -107,11 +109,11 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
             const SizedBox(height: 16),
 
             // History Header
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
-                'History',
-                style: TextStyle(
+                l10n.history,
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textMuted,
@@ -123,10 +125,10 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
             // History List
             Expanded(
               child: filteredSessions.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text(
-                        'No chats found',
-                        style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                        l10n.noChatsFound,
+                        style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
                       ),
                     )
                   : ListView.separated(
@@ -151,8 +153,8 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: isSelected
-                                    ? AppColors.primary.withOpacity(0.3)
-                                    : Colors.transparent,
+                                  ? AppColors.primary.withOpacity(0.3)
+                                  : Colors.transparent,
                               ),
                             ),
                             child: Row(
@@ -165,7 +167,7 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
-                                    s.title.isNotEmpty ? s.title : 'Untitled Chat',
+                                    s.title.isNotEmpty ? s.title : l10n.untitledChat,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
@@ -183,7 +185,7 @@ class _ChatDrawerState extends ConsumerState<ChatDrawer> {
                                       ref.read(activeChatSessionIdProvider.notifier).state = null;
                                     }
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Chat deleted')),
+                                      SnackBar(content: Text(l10n.chatDeleted)),
                                     );
                                   },
                                   padding: EdgeInsets.zero,

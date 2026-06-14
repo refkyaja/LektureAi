@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
+import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../../../theme.dart';
 import '../../shared/providers/global_providers.dart';
 import '../domain/study_model.dart';
@@ -69,6 +70,7 @@ class _FlashRunnerScreenState extends ConsumerState<FlashRunnerScreen> {
       final notes = ref.read(notesProvider);
       final note = notes.firstWhere((n) => n.id == widget.noteId);
       final ai = ref.read(aiServiceProvider);
+      final l10n = AppLocalizations.of(context)!;
 
       final result = await ai.generateFlashcards(
         note.body,
@@ -89,7 +91,7 @@ class _FlashRunnerScreenState extends ConsumerState<FlashRunnerScreen> {
         id: _historyId,
         kind: 'flash',
         noteId: widget.noteId,
-        noteTitle: note.title.isEmpty ? 'Untitled' : note.title,
+        noteTitle: note.title.isEmpty ? l10n.untitled : note.title,
         createdAt: DateTime.now().millisecondsSinceEpoch,
         cards: result,
       );
@@ -132,19 +134,20 @@ class _FlashRunnerScreenState extends ConsumerState<FlashRunnerScreen> {
     final theme = Theme.of(context);
     final notes = ref.read(notesProvider);
     final note = notes.firstWhere((n) => n.id == widget.noteId, orElse: () => Note(id: '', title: 'Deleted Note', body: '', tag: '', createdAt: 0, updatedAt: 0));
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'FLASHCARDS',
-              style: TextStyle(fontSize: 9, color: AppColors.secondary, fontWeight: FontWeight.bold, letterSpacing: 0.8),
+            Text(
+              l10n.flashcardsUpper,
+              style: const TextStyle(fontSize: 9, color: AppColors.secondary, fontWeight: FontWeight.bold, letterSpacing: 0.8),
             ),
             const SizedBox(height: 2),
             Text(
-              note.title.isEmpty ? 'Untitled' : note.title,
+              note.title.isEmpty ? l10n.untitled : note.title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.titleMedium?.copyWith(fontSize: 13),
@@ -170,6 +173,7 @@ class _FlashRunnerScreenState extends ConsumerState<FlashRunnerScreen> {
   Widget _buildBody() {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     if (_isLoading) {
       return Column(
@@ -185,10 +189,10 @@ class _FlashRunnerScreenState extends ConsumerState<FlashRunnerScreen> {
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                CircularProgressIndicator(color: AppColors.secondary),
-                SizedBox(height: 18),
-                Text('Extracting key concepts…', style: TextStyle(fontWeight: FontWeight.bold)),
+              children: [
+                const CircularProgressIndicator(color: AppColors.secondary),
+                const SizedBox(height: 18),
+                Text(l10n.extractingConcepts, style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -209,7 +213,7 @@ class _FlashRunnerScreenState extends ConsumerState<FlashRunnerScreen> {
             children: [
               const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 40),
               const SizedBox(height: 12),
-              const Text('Extraction Failed', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(l10n.extractionFailed, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 6),
               Text(
                 _errorMessage,
@@ -219,7 +223,7 @@ class _FlashRunnerScreenState extends ConsumerState<FlashRunnerScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _generateFlashcards,
-                child: const Text('Try Again'),
+                child: Text(l10n.tryAgain),
               ),
             ],
           ),
@@ -228,7 +232,7 @@ class _FlashRunnerScreenState extends ConsumerState<FlashRunnerScreen> {
     }
 
     if (_cards.isEmpty) {
-      return const Center(child: Text('No flashcards loaded.'));
+      return Center(child: Text(l10n.noFlashcardsLoaded));
     }
 
     final totalCards = _cards.length;
@@ -243,15 +247,15 @@ class _FlashRunnerScreenState extends ConsumerState<FlashRunnerScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '${_currentIndex + 1} of $totalCards',
+              l10n.cardNumberProgress(_currentIndex + 1, totalCards),
               style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
             ),
             if (_isNewDeck)
               GestureDetector(
                 onTap: _generateFlashcards,
-                child: const Text(
-                  'Regenerate',
-                  style: TextStyle(fontSize: 11, color: AppColors.secondary, fontWeight: FontWeight.bold),
+                child: Text(
+                  l10n.regenerate,
+                  style: const TextStyle(fontSize: 11, color: AppColors.secondary, fontWeight: FontWeight.bold),
                 ),
               ),
           ],
@@ -301,7 +305,7 @@ class _FlashRunnerScreenState extends ConsumerState<FlashRunnerScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Text(
-                  _isFlipped ? 'Show term' : 'Show definition',
+                  _isFlipped ? l10n.showTerm : l10n.showDefinition,
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
                 ),
               ),
@@ -344,6 +348,7 @@ class InteractiveFlipCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return GestureDetector(
       onTap: onTap,
@@ -382,9 +387,9 @@ class InteractiveFlipCard extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            'DEFINITION',
-                            style: TextStyle(
+                          Text(
+                            l10n.definitionUpper,
+                            style: const TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
                               color: AppColors.success,
@@ -423,9 +428,9 @@ class InteractiveFlipCard extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          'TERM',
-                          style: TextStyle(
+                        Text(
+                          l10n.termUpper,
+                          style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
                             color: AppColors.secondary,
@@ -439,9 +444,9 @@ class InteractiveFlipCard extends StatelessWidget {
                           style: theme.textTheme.displayMedium?.copyWith(fontSize: 20),
                         ),
                         const SizedBox(height: 20),
-                        const Text(
-                          'Tap to flip',
-                          style: TextStyle(
+                        Text(
+                          l10n.tapToFlip,
+                          style: const TextStyle(
                             fontSize: 10,
                             color: AppColors.textMuted,
                           ),

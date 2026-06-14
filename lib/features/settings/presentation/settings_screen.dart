@@ -1,104 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../../../theme.dart';
 import '../../shared/providers/global_providers.dart';
 import '../../profile/domain/profile_model.dart';
-
-const Map<String, Map<String, String>> _localizedText = {
-  'en': {
-    'title': 'Settings',
-    'profile': 'Profile',
-    'appearance': 'Appearance',
-    'theme': 'Theme',
-    'theme_desc': 'Select application theme',
-    'compact_view': 'Compact view',
-    'compact_desc': 'Smaller cards, tighter spacing',
-    'notifications': 'Notifications',
-    'quiz_reminders': 'Quiz reminders',
-    'quiz_desc': 'Daily prompt to review flashcards',
-    'study_streaks': 'Study streaks',
-    'streaks_desc': 'Keep your daily streak alive',
-    'auto_save': 'Auto-save notes',
-    'auto_save_desc': 'Save while you type',
-    'account_actions': 'Account Actions',
-    'switch_account': 'Switch Account',
-    'switch_account_desc': 'Change to another user profile',
-    'logout': 'Sign Out',
-    'logout_desc': 'Sign out of the current account',
-    'language': 'Language',
-    'language_desc': 'Select application language',
-    'api_key_settings': 'API Key Settings',
-    'custom_api_key': 'Custom Gemini API Key',
-    'custom_api_key_desc': 'Use your own API key from Google AI Studio',
-    'enter_api_key': 'Enter API Key',
-    'activate': 'Activate Custom API Key',
-    'data': 'Data',
-    'clear_notes': 'Clear all notes',
-    'clear_notes_desc': 'This action cannot be undone',
-    'about': 'About',
-    'version': 'Version',
-    'contact_support': 'Contact support',
-    'confirm_logout': 'Are you sure you want to sign out?',
-    'confirm_logout_desc': 'This will reset your profile. Your notes will remain saved locally.',
-    'switch_success': 'Switched to account',
-    'logout_success': 'Logged out successfully',
-    'api_key_saved': 'API Key saved successfully',
-    'api_key_activated': 'Custom API Key activated',
-    'api_key_disabled': 'Custom API Key disabled',
-    'active': 'Active',
-    'inactive': 'Inactive',
-    'system': 'System',
-    'dark': 'Dark',
-    'light': 'Light',
-  },
-  'id': {
-    'title': 'Pengaturan',
-    'profile': 'Profil',
-    'appearance': 'Tampilan',
-    'theme': 'Tema',
-    'theme_desc': 'Pilih tema aplikasi',
-    'compact_view': 'Tampilan Kompak',
-    'compact_desc': 'Kartu lebih kecil, jarak lebih rapat',
-    'notifications': 'Notifikasi',
-    'quiz_reminders': 'Pengingat Kuis',
-    'quiz_desc': 'Pengingat harian untuk mengulas kartu flash',
-    'study_streaks': 'Streak Belajar',
-    'streaks_desc': 'Pertahankan streak belajar harian Anda',
-    'auto_save': 'Simpan Otomatis',
-    'auto_save_desc': 'Menyimpan catatan saat Anda mengetik',
-    'account_actions': 'Aksi Akun',
-    'switch_account': 'Beralih Akun',
-    'switch_account_desc': 'Pindah ke profil pengguna lain',
-    'logout': 'Keluar Akun',
-    'logout_desc': 'Keluar dari akun saat ini',
-    'language': 'Bahasa',
-    'language_desc': 'Pilih bahasa aplikasi',
-    'api_key_settings': 'Pengaturan API Key',
-    'custom_api_key': 'Custom Gemini API Key',
-    'custom_api_key_desc': 'Gunakan API key Anda sendiri dari Google AI Studio',
-    'enter_api_key': 'Masukkan API Key',
-    'activate': 'Aktifkan Custom API Key',
-    'data': 'Data',
-    'clear_notes': 'Hapus semua catatan',
-    'clear_notes_desc': 'Tindakan ini tidak dapat dibatalkan',
-    'about': 'Tentang',
-    'version': 'Versi',
-    'contact_support': 'Hubungi dukungan',
-    'confirm_logout': 'Apakah Anda yakin ingin keluar?',
-    'confirm_logout_desc': 'Ini akan mereset profil Anda. Catatan Anda akan tetap tersimpan secara lokal.',
-    'switch_success': 'Beralih ke akun',
-    'logout_success': 'Berhasil keluar akun',
-    'api_key_saved': 'API Key berhasil disimpan',
-    'api_key_activated': 'Custom API Key diaktifkan',
-    'api_key_disabled': 'Custom API Key dinonaktifkan',
-    'active': 'Aktif',
-    'inactive': 'Nonaktif',
-    'system': 'Sistem',
-    'dark': 'Gelap',
-    'light': 'Terang',
-  }
-};
 
 final List<ProfileData> _mockAccounts = [
   ProfileData(
@@ -136,16 +42,12 @@ class SettingsScreen extends ConsumerWidget {
     final profile = ref.watch(profileProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final lang = settings.language;
-
-    String text(String key) {
-      return _localizedText[lang]?[key] ?? _localizedText['en']![key]!;
-    }
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          text('title'),
+          l10n.settings,
           style: theme.textTheme.displaySmall?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
@@ -225,18 +127,18 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Appearance Section
-            _buildSectionHeader(text('appearance')),
+            _buildSectionHeader(l10n.appearance),
             _buildSettingsGroup(context, [
               // Theme Dropdown Row
               _buildDropdownRow<String>(
                 context,
-                title: text('theme'),
-                desc: text('theme_desc'),
+                title: l10n.theme,
+                desc: l10n.themeDesc,
                 value: settings.themeMode,
                 items: [
-                  DropdownMenuItem(value: 'system', child: Text(text('system'))),
-                  DropdownMenuItem(value: 'dark', child: Text(text('dark'))),
-                  DropdownMenuItem(value: 'light', child: Text(text('light'))),
+                  DropdownMenuItem(value: 'system', child: Text(l10n.system)),
+                  DropdownMenuItem(value: 'dark', child: Text(l10n.dark)),
+                  DropdownMenuItem(value: 'light', child: Text(l10n.light)),
                 ],
                 onChanged: (val) {
                   if (val != null) {
@@ -247,8 +149,8 @@ class SettingsScreen extends ConsumerWidget {
               // Language Dropdown Row
               _buildDropdownRow<String>(
                 context,
-                title: text('language'),
-                desc: text('language_desc'),
+                title: l10n.language,
+                desc: l10n.languageDesc,
                 value: settings.language,
                 items: const [
                   DropdownMenuItem(value: 'en', child: Text('English')),
@@ -263,8 +165,8 @@ class SettingsScreen extends ConsumerWidget {
               // Compact View Switch
               _buildSwitchRow(
                 context,
-                title: text('compact_view'),
-                desc: text('compact_desc'),
+                title: l10n.compactView,
+                desc: l10n.compactDesc,
                 value: settings.compactView,
                 onChanged: (val) {
                   ref.read(settingsProvider.notifier).setCompactView(val);
@@ -274,12 +176,12 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 20),
 
             // Notifications Section
-            _buildSectionHeader(text('notifications')),
+            _buildSectionHeader(l10n.notifications),
             _buildSettingsGroup(context, [
               _buildSwitchRow(
                 context,
-                title: text('quiz_reminders'),
-                desc: text('quiz_desc'),
+                title: l10n.quizReminders,
+                desc: l10n.quizDesc,
                 value: settings.notifQuiz,
                 onChanged: (val) {
                   ref.read(settingsProvider.notifier).setNotifQuiz(val);
@@ -287,8 +189,8 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _buildSwitchRow(
                 context,
-                title: text('study_streaks'),
-                desc: text('streaks_desc'),
+                title: l10n.studyStreaks,
+                desc: l10n.streaksDesc,
                 value: settings.notifStreak,
                 onChanged: (val) {
                   ref.read(settingsProvider.notifier).setNotifStreak(val);
@@ -296,8 +198,8 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _buildSwitchRow(
                 context,
-                title: text('auto_save'),
-                desc: text('auto_save_desc'),
+                title: l10n.autoSave,
+                desc: l10n.autoSaveDesc,
                 value: settings.autoSave,
                 onChanged: (val) {
                   ref.read(settingsProvider.notifier).setAutoSave(val);
@@ -307,59 +209,59 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 20),
 
             // Account Actions Section
-            _buildSectionHeader(text('account_actions')),
+            _buildSectionHeader(l10n.accountActions),
             _buildSettingsGroup(context, [
               _buildClickableRow(
                 context,
-                title: text('switch_account'),
-                desc: text('switch_account_desc'),
-                onTap: () => _showSwitchAccountDialog(context, ref, text),
+                title: l10n.switchAccount,
+                desc: l10n.switchAccountDesc,
+                onTap: () => _showSwitchAccountDialog(context, ref, l10n),
               ),
               _buildClickableRow(
                 context,
-                title: text('logout'),
-                desc: text('logout_desc'),
+                title: l10n.logout,
+                desc: l10n.logoutDesc,
                 isDestructive: true,
-                onTap: () => _confirmLogout(context, ref, text),
+                onTap: () => _confirmLogout(context, ref, l10n),
               ),
             ]),
             const SizedBox(height: 20),
 
             // API Key Settings Section
-            _buildSectionHeader(text('api_key_settings')),
+            _buildSectionHeader(l10n.apiKeySettings),
             _buildSettingsGroup(context, [
-              _ApiKeyInputRow(settings: settings, textHelper: text),
+              _ApiKeyInputRow(settings: settings, l10n: l10n),
             ]),
             const SizedBox(height: 20),
 
             // Data Section
-            _buildSectionHeader(text('data')),
+            _buildSectionHeader(l10n.data),
             _buildSettingsGroup(context, [
               _buildClickableRow(
                 context,
-                title: text('clear_notes'),
-                desc: text('clear_notes_desc'),
+                title: l10n.clearNotes,
+                desc: l10n.clearNotesDesc,
                 isDestructive: true,
-                onTap: () => _confirmClearData(context, ref, text),
+                onTap: () => _confirmClearData(context, ref, l10n),
               ),
             ]),
             const SizedBox(height: 20),
 
             // About Section
-            _buildSectionHeader(text('about')),
+            _buildSectionHeader(l10n.about),
             _buildSettingsGroup(context, [
               _buildStaticRow(
                 context,
-                title: text('version'),
+                title: l10n.version,
                 value: '1.0.0',
               ),
               _buildClickableRow(
                 context,
-                title: text('contact_support'),
+                title: l10n.contactSupport,
                 desc: 'support@lekture.ai',
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Support email copied: support@lekture.ai')),
+                    SnackBar(content: Text(l10n.supportEmailCopied)),
                   );
                 },
               ),
@@ -576,14 +478,14 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _showSwitchAccountDialog(BuildContext context, WidgetRef ref, String Function(String) text) {
+  void _showSwitchAccountDialog(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     final activeProfile = ref.read(profileProvider);
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(text('switch_account'), style: const TextStyle(fontSize: 18)),
+          title: Text(l10n.switchAccount, style: const TextStyle(fontSize: 18)),
           content: ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 250),
             child: SizedBox(
@@ -595,7 +497,7 @@ class SettingsScreen extends ConsumerWidget {
                   final acc = _mockAccounts[index];
                   final isCurrent = activeProfile.email == acc.email;
                   return ListTile(
-                    dense: true,
+                     dense: true,
                     contentPadding: const EdgeInsets.symmetric(vertical: 4),
                     title: Text(acc.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(acc.email),
@@ -606,7 +508,7 @@ class SettingsScreen extends ConsumerWidget {
                       ref.read(profileProvider.notifier).updateProfile(acc);
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('${text('switch_success')}: ${acc.name}')),
+                        SnackBar(content: Text('${l10n.switchSuccess}: ${acc.name}')),
                       );
                     },
                   );
@@ -617,7 +519,7 @@ class SettingsScreen extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
           ],
         );
@@ -625,17 +527,17 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _confirmLogout(BuildContext context, WidgetRef ref, String Function(String) text) {
+  void _confirmLogout(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(text('logout'), style: const TextStyle(fontSize: 18)),
-          content: Text(text('confirm_logout_desc'), style: const TextStyle(fontSize: 13.5)),
+          title: Text(l10n.logout, style: const TextStyle(fontSize: 18)),
+          content: Text(l10n.confirmLogoutDesc, style: const TextStyle(fontSize: 13.5)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             ElevatedButton(
               onPressed: () {
@@ -651,11 +553,11 @@ class SettingsScreen extends ConsumerWidget {
                 );
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(text('logout_success'))),
+                  SnackBar(content: Text(l10n.logoutSuccess)),
                 );
               },
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-              child: Text(text('logout')),
+              child: Text(l10n.logout),
             ),
           ],
         );
@@ -663,20 +565,20 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _confirmClearData(BuildContext context, WidgetRef ref, String Function(String) text) {
+  void _confirmClearData(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('${text('clear_notes')}?', style: const TextStyle(fontSize: 18)),
+          title: Text('${l10n.clearNotes}?', style: const TextStyle(fontSize: 18)),
           content: Text(
-            'This will delete all your notes, custom tags, study history, and chat logs. This cannot be undone.',
+            l10n.clearNotesDialogDesc,
             style: const TextStyle(fontSize: 13.5),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -688,12 +590,12 @@ class SettingsScreen extends ConsumerWidget {
                 if (context.mounted) {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('All data cleared successfully.')),
+                    SnackBar(content: Text(l10n.allDataCleared)),
                   );
                 }
               },
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-              child: const Text('Delete'),
+              child: Text(l10n.delete),
             ),
           ],
         );
@@ -704,11 +606,11 @@ class SettingsScreen extends ConsumerWidget {
 
 class _ApiKeyInputRow extends ConsumerStatefulWidget {
   final AppSettings settings;
-  final String Function(String) textHelper;
+  final AppLocalizations l10n;
 
   const _ApiKeyInputRow({
     required this.settings,
-    required this.textHelper,
+    required this.l10n,
   });
 
   @override
@@ -743,7 +645,7 @@ class _ApiKeyInputRowState extends ConsumerState<_ApiKeyInputRow> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final text = widget.textHelper;
+    final l10n = widget.l10n;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -756,9 +658,9 @@ class _ApiKeyInputRowState extends ConsumerState<_ApiKeyInputRow> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(text('custom_api_key'), style: theme.textTheme.titleMedium?.copyWith(fontSize: 13.5)),
+                    Text(l10n.customApiKey, style: theme.textTheme.titleMedium?.copyWith(fontSize: 13.5)),
                     const SizedBox(height: 2),
-                    Text(text('custom_api_key_desc'), style: theme.textTheme.bodyMedium?.copyWith(fontSize: 11)),
+                    Text(l10n.customApiKeyDesc, style: theme.textTheme.bodyMedium?.copyWith(fontSize: 11)),
                   ],
                 ),
               ),
@@ -770,7 +672,7 @@ class _ApiKeyInputRowState extends ConsumerState<_ApiKeyInputRow> {
                 onChanged: (val) {
                   ref.read(settingsProvider.notifier).setUseCustomApiKey(val);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(val ? text('api_key_activated') : text('api_key_disabled'))),
+                    SnackBar(content: Text(val ? l10n.apiKeyActivated : l10n.apiKeyDisabled)),
                   );
                 },
               ),
@@ -785,7 +687,7 @@ class _ApiKeyInputRowState extends ConsumerState<_ApiKeyInputRow> {
                   obscureText: _obscured,
                   style: const TextStyle(fontSize: 13),
                   decoration: InputDecoration(
-                    hintText: text('enter_api_key'),
+                    hintText: l10n.enterApiKey,
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     suffixIcon: IconButton(
@@ -804,14 +706,14 @@ class _ApiKeyInputRowState extends ConsumerState<_ApiKeyInputRow> {
                   ref.read(settingsProvider.notifier).setCustomApiKey(key);
                   FocusScope.of(context).unfocus();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(text('api_key_saved'))),
+                    SnackBar(content: Text(l10n.apiKeySaved)),
                   );
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text('Save', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                child: Text(l10n.save, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
