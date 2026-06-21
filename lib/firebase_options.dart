@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -66,4 +63,15 @@ class DefaultFirebaseOptions {
     iosClientId: '99530883410-m7aaku38jm5ibbgbiu40isl4v4huvkp2.apps.googleusercontent.com',
     iosBundleId: 'com.example.lektureAi',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBvaSmXDsUbjWilxu37hjno95c4y4ccoR8',
+    appId: '1:99530883410:web:be6bf1fabb1b374b4c3a8b',
+    messagingSenderId: '99530883410',
+    projectId: 'lekture-ai',
+    authDomain: 'lekture-ai.firebaseapp.com',
+    storageBucket: 'lekture-ai.firebasestorage.app',
+    measurementId: 'G-VG7HXFYNWW',
+  );
+
 }

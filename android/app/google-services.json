@@ -29,6 +29,13 @@
             {
               "client_id": "99530883410-mgt5ua7q3oapj68d34kp3dtfrocm5p8i.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "99530883410-m7aaku38jm5ibbgbiu40isl4v4huvkp2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.lektureAi"
+              }
             }
           ]
         }
