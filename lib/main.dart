@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:lekture_ai/l10n/app_localizations.dart';
 import 'theme.dart';
 import 'features/shared/services/local_storage_service.dart';
 import 'features/shared/providers/global_providers.dart';
 import 'features/shared/router.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint("Error initializing Firebase: $e");
+  }
   
   // Load .env file
   try {

@@ -732,4 +732,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectCategory => 'Select Category';
+
+  @override
+  String selectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String confirmDeleteMultiple(int count) {
+    return 'Are you sure you want to delete $count selected notes? This action cannot be undone.';
+  }
+
+  @override
+  String get selectAll => 'Select All';
+
+  @override
+  String get selected => 'selected';
 }

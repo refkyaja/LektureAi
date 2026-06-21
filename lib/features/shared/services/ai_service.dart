@@ -5,6 +5,7 @@ import '../../chat/domain/chat_model.dart';
 import '../../study/domain/study_model.dart';
 
 class AIService {
+  static const String _defaultModel = 'gemini-2.5-flash';
   final Dio _dio;
   final String? customApiKey;
   final bool useCustomApiKey;
@@ -64,7 +65,7 @@ class AIService {
       };
 
       final response = await _dio.post(
-        _getEndpoint('gemini-1.5-flash'),
+        _getEndpoint(_defaultModel),
         data: body,
       );
 
@@ -108,7 +109,7 @@ class AIService {
       };
 
       final response = await _dio.post(
-        _getEndpoint('gemini-1.5-flash'),
+        _getEndpoint(_defaultModel),
         data: body,
       );
 
@@ -158,7 +159,7 @@ class AIService {
       };
 
       final response = await _dio.post(
-        _getEndpoint('gemini-1.5-flash'),
+        _getEndpoint(_defaultModel),
         data: body,
       );
 
@@ -213,7 +214,7 @@ class AIService {
       };
 
       final response = await _dio.post(
-        _getEndpoint('gemini-1.5-flash'),
+        _getEndpoint(_defaultModel),
         data: body,
       );
 

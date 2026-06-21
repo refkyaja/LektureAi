@@ -4,16 +4,16 @@ import 'package:google_fonts/google_fonts.dart';
 class AppColors {
   static const Color primary = Color(0xFF6C63FF);
   static const Color secondary = Color(0xFFB0ADFF);
-  static const Color background = Color(0xFF0A0E1A);
-  static const Color surface = Color(0xFF1C2235);
-  static const Color surfaceVariant = Color(0xFF252D48);
+  static const Color background = Color(0xFF0A0A0A);
+  static const Color surface = Color(0xFF161616);
+  static const Color surfaceVariant = Color(0xFF222222);
   static const Color text = Color(0xFFF0EDFF);
   static const Color textMuted = Color(0xFF949CBE);
   static const Color accent = Color(0xFF3DD9AE); // Teal/AI Active
   static const Color success = Color(0xFF3DD9AE);
   static const Color error = Color(0xFFFF6384);
-  static const Color border = Color(0xFF2A314A);
-  static const Color glassBg = Color(0x990A0E1A);
+  static const Color border = Color(0xFF242424);
+  static const Color glassBg = Color(0x990A0A0A);
 }
 
 class AppTheme {

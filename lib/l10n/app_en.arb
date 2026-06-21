@@ -360,5 +360,7 @@
         "type": "int"
       }
     }
-  }
+  },
+  "selectAll": "Select All",
+  "selected": "selected"
 }

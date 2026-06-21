@@ -201,6 +201,22 @@ class LocalStorageService {
     await _prefs.setBool('settings_auto_save', value);
   }
 
+  bool getShowedOnboarding() {
+    return _prefs.getBool('settings_showed_onboarding') ?? false;
+  }
+
+  Future<void> setShowedOnboarding(bool value) async {
+    await _prefs.setBool('settings_showed_onboarding', value);
+  }
+
+  bool getIsLoggedIn() {
+    return _prefs.getBool('settings_is_logged_in') ?? false;
+  }
+
+  Future<void> setIsLoggedIn(bool value) async {
+    await _prefs.setBool('settings_is_logged_in', value);
+  }
+
   int getStreakDays() {
     return _prefs.getInt('profile_streak') ?? 3;
   }

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "99530883410",
+    "project_id": "lekture-ai",
+    "storage_bucket": "lekture-ai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:99530883410:android:a392295c7aadc2a74c3a8b",
+        "android_client_info": {
+          "package_name": "com.example.lekture_ai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "99530883410-mgt5ua7q3oapj68d34kp3dtfrocm5p8i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgWgIS399yG-rUzpKbqxrEk9bcV2WS-Es"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "99530883410-mgt5ua7q3oapj68d34kp3dtfrocm5p8i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

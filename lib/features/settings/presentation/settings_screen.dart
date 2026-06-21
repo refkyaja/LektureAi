@@ -670,6 +670,8 @@ class _ApiKeyInputRowState extends ConsumerState<_ApiKeyInputRow> {
                 activeTrackColor: AppColors.primary.withOpacity(0.3),
                 inactiveThumbColor: isDark ? Colors.grey[400] : Colors.grey[200],
                 onChanged: (val) {
+                  final key = _apiKeyController.text.trim();
+                  ref.read(settingsProvider.notifier).setCustomApiKey(key);
                   ref.read(settingsProvider.notifier).setUseCustomApiKey(val);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(val ? l10n.apiKeyActivated : l10n.apiKeyDisabled)),

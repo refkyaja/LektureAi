@@ -11,15 +11,27 @@ import '../study/presentation/flash_runner_screen.dart';
 import '../chat/presentation/chat_screen.dart';
 import '../profile/presentation/profile_screen.dart';
 import '../settings/presentation/settings_screen.dart';
+import '../onboarding/presentation/onboarding_flow_screen.dart';
 import 'shell_screen.dart';
+import 'providers/global_providers.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 final routerProvider = Provider<GoRouter>((ref) {
+  final storage = ref.read(localStorageServiceProvider);
+  final showedOnboarding = storage.getShowedOnboarding();
+  final isLoggedIn = storage.getIsLoggedIn();
+  final initialLocation = (!showedOnboarding || !isLoggedIn) ? '/onboarding' : '/home';
+
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/home',
+    initialLocation: initialLocation,
     routes: [
+      GoRoute(
+        path: '/onboarding',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const OnboardingFlowScreen(),
+      ),
       StatefulShellRoute.indexedStack(
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state, navigationShell) {

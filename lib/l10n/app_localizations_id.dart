@@ -736,4 +736,20 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get selectCategory => 'Pilih Kategori';
+
+  @override
+  String selectedCount(int count) {
+    return '$count terpilih';
+  }
+
+  @override
+  String confirmDeleteMultiple(int count) {
+    return 'Apakah Anda yakin ingin menghapus $count catatan terpilih? Tindakan ini tidak dapat dibatalkan.';
+  }
+
+  @override
+  String get selectAll => 'Pilih Semua';
+
+  @override
+  String get selected => 'terpilih';
 }

@@ -23,6 +23,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   List<String> _selectedNoteIds = [];
 
   @override
+  void initState() {
+    super.initState();
+    // Initialize selected note IDs from the active session if present
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final activeSessionId = ref.read(activeChatSessionIdProvider);
+      if (activeSessionId != null) {
+        final sessions = ref.read(chatSessionsProvider);
+        final activeSession = sessions.firstWhere(
+          (s) => s.id == activeSessionId,
+          orElse: () => ChatSession(id: '', title: '', updatedAt: 0, messages: [], noteIds: []),
+        );
+        setState(() {
+          _selectedNoteIds = List.from(activeSession.noteIds);
+        });
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _inputController.dispose();
     _scrollController.dispose();
@@ -39,6 +58,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         );
       }
     });
+  }
+
+  Future<void> _updateSessionNotes(List<String> noteIds) async {
+    final activeSessionId = ref.read(activeChatSessionIdProvider);
+    if (activeSessionId != null) {
+      final sessions = ref.read(chatSessionsProvider);
+      final activeSession = sessions.firstWhere(
+        (s) => s.id == activeSessionId,
+        orElse: () => ChatSession(id: '', title: '', updatedAt: 0, messages: [], noteIds: []),
+      );
+      if (activeSession.id.isNotEmpty) {
+        final updatedSession = activeSession.copyWith(
+          noteIds: noteIds,
+          updatedAt: DateTime.now().millisecondsSinceEpoch,
+        );
+        await ref.read(chatSessionsProvider.notifier).saveSession(updatedSession);
+      }
+    }
   }
 
 
@@ -61,7 +98,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     // Build context if notes selected
     String userContent = text;
     final selectedNotes = notes.where((n) => _selectedNoteIds.contains(n.id)).toList();
-    if (selectedNotes.isNotEmpty && msgs.isEmpty) {
+    if (selectedNotes.isNotEmpty) {
       final contextBuffer = StringBuffer();
       for (final n in selectedNotes) {
         contextBuffer.writeln('### ${n.title.isEmpty ? l10n.untitled : n.title} (${n.tag})');
@@ -207,6 +244,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             }
                           });
                           setState(() {}); // Sync parent state
+                          _updateSessionNotes(_selectedNoteIds); // Persist!
                         },
                       ),
                       onTap: () {
@@ -218,6 +256,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           }
                         });
                         setState(() {}); // Sync parent state
+                        _updateSessionNotes(_selectedNoteIds); // Persist!
                       },
                     );
                   },
@@ -233,6 +272,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           _selectedNoteIds.clear();
                         });
                         setState(() {});
+                        _updateSessionNotes(_selectedNoteIds); // Persist!
                       },
                       style: OutlinedButton.styleFrom(
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -392,10 +432,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           _selectedNoteIds = [];
         });
       } else {
-        final nextSession = sessions.firstWhere((s) => s.id == next, orElse: () => ChatSession(id: '', title: '', updatedAt: 0, messages: [], noteIds: []));
-        setState(() {
-          _selectedNoteIds = List.from(nextSession.noteIds);
-        });
+        final currentSessions = ref.read(chatSessionsProvider);
+        final nextSession = currentSessions.firstWhere(
+          (s) => s.id == next,
+          orElse: () => ChatSession(id: '', title: '', updatedAt: 0, messages: [], noteIds: []),
+        );
+        if (nextSession.id.isNotEmpty) {
+          setState(() {
+            _selectedNoteIds = List.from(nextSession.noteIds);
+          });
+        }
         _scrollToBottom();
       }
     });
@@ -453,6 +499,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         setState(() {
                           _selectedNoteIds.remove(n.id);
                         });
+                        _updateSessionNotes(_selectedNoteIds); // Persist!
                       },
                       deleteIconColor: AppColors.secondary,
                     );

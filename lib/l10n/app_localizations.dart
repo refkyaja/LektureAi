@@ -1471,6 +1471,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select Category'**
   String get selectCategory;
+
+  /// No description provided for @selectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String selectedCount(int count);
+
+  /// No description provided for @confirmDeleteMultiple.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete {count} selected notes? This action cannot be undone.'**
+  String confirmDeleteMultiple(int count);
+
+  /// No description provided for @selectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select All'**
+  String get selectAll;
+
+  /// No description provided for @selected.
+  ///
+  /// In en, this message translates to:
+  /// **'selected'**
+  String get selected;
 }
 
 class _AppLocalizationsDelegate

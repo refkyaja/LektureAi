@@ -40,7 +40,9 @@ class _QuizRunnerScreenState extends ConsumerState<QuizRunnerScreen> {
   @override
   void initState() {
     super.initState();
-    _loadOrGenerateQuiz();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadOrGenerateQuiz();
+    });
   }
 
   void _loadOrGenerateQuiz() async {

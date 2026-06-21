@@ -38,7 +38,9 @@ class _FlashRunnerScreenState extends ConsumerState<FlashRunnerScreen> {
   @override
   void initState() {
     super.initState();
-    _loadOrGenerateFlashcards();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadOrGenerateFlashcards();
+    });
   }
 
   void _loadOrGenerateFlashcards() async {
