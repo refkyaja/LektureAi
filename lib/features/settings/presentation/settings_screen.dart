@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../../../theme.dart';
 import '../../shared/providers/global_providers.dart';
@@ -540,7 +541,19 @@ class SettingsScreen extends ConsumerWidget {
               child: Text(l10n.cancel),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                // 1. Sign out from Firebase
+                try {
+                  await FirebaseAuth.instance.signOut();
+                } catch (e) {
+                  debugPrint("Firebase signOut error: $e");
+                }
+
+                // 2. Clear logged in state in local storage
+                final storage = ref.read(localStorageServiceProvider);
+                await storage.setIsLoggedIn(false);
+
+                // 3. Reset profile details locally
                 ref.read(profileProvider.notifier).updateProfile(
                   ProfileData(
                     name: 'Guest User',
@@ -549,12 +562,17 @@ class SettingsScreen extends ConsumerWidget {
                     school: '',
                     grade: '',
                     subjects: [],
-                  )
+                  ),
                 );
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.logoutSuccess)),
-                );
+
+                if (context.mounted) {
+                  Navigator.pop(context); // Close dialog
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.logoutSuccess)),
+                  );
+                  // 4. Redirect to onboarding
+                  context.go('/onboarding');
+                }
               },
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
               child: Text(l10n.logout),
