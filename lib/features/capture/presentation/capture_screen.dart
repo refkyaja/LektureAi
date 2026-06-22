@@ -135,24 +135,62 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
   bool _isListening = false;
   String _transcript = '';
   String _savedTranscript = '';
+  String _currentSessionWords = '';
   String _interim = '';
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   void _toggleListening() async {
     final l10n = AppLocalizations.of(context)!;
     if (_isListening) {
       await _speech.stop();
-      setState(() => _isListening = false);
+      setState(() {
+        _isListening = false;
+        if (_currentSessionWords.isNotEmpty) {
+          _savedTranscript = _savedTranscript.isEmpty
+              ? _currentSessionWords
+              : '$_savedTranscript $_currentSessionWords';
+          _currentSessionWords = '';
+        }
+        _transcript = _savedTranscript.trim();
+        _scrollToBottom();
+      });
     } else {
       bool available = await _speech.initialize(
         onStatus: (status) {
           debugPrint('STT Status: $status');
           if (status == 'done' || status == 'notListening') {
-            setState(() => _isListening = false);
+            setState(() {
+              _isListening = false;
+              if (_currentSessionWords.isNotEmpty) {
+                _savedTranscript = _savedTranscript.isEmpty
+                    ? _currentSessionWords
+                    : '$_savedTranscript $_currentSessionWords';
+                _currentSessionWords = '';
+              }
+              _transcript = _savedTranscript.trim();
+              _scrollToBottom();
+            });
           }
         },
         onError: (error) {
           debugPrint('STT Error: $error');
-          setState(() => _isListening = false);
+          setState(() {
+            _isListening = false;
+            if (_currentSessionWords.isNotEmpty) {
+              _savedTranscript = _savedTranscript.isEmpty
+                  ? _currentSessionWords
+                  : '$_savedTranscript $_currentSessionWords';
+              _currentSessionWords = '';
+            }
+            _transcript = _savedTranscript.trim();
+            _scrollToBottom();
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(l10n.dictationError(error.errorMsg))),
           );
@@ -163,15 +201,52 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
         setState(() {
           _isListening = true;
           _savedTranscript = _transcript.trim();
+          _currentSessionWords = '';
           _interim = '';
         });
         final settings = ref.read(settingsProvider);
         _speech.listen(
           onResult: (result) {
             setState(() {
-              _transcript = _savedTranscript.isEmpty
-                  ? result.recognizedWords
-                  : '$_savedTranscript ${result.recognizedWords}';
+              String currentWords = result.recognizedWords.trim();
+
+              // Detect segment reset (common in continuous listening on Android/iOS)
+              if (_currentSessionWords.isNotEmpty && currentWords.isNotEmpty) {
+                List<String> oldWordsList = _currentSessionWords.toLowerCase().split(' ');
+                List<String> newWordsList = currentWords.toLowerCase().split(' ');
+
+                if (newWordsList.isNotEmpty && oldWordsList.isNotEmpty) {
+                  String firstNewWord = newWordsList.first;
+                  // If the new first word is not in the old words list at all,
+                  // and the new text is shorter or does not start with the old text,
+                  // it indicates the engine has reset its buffer to start a new segment.
+                  if (!oldWordsList.contains(firstNewWord) &&
+                      !currentWords.toLowerCase().startsWith(_currentSessionWords.toLowerCase())) {
+                    _savedTranscript = _savedTranscript.isEmpty
+                        ? _currentSessionWords
+                        : '$_savedTranscript $_currentSessionWords';
+                  }
+                }
+              }
+
+              if (result.finalResult) {
+                if (currentWords.isNotEmpty) {
+                  _savedTranscript = _savedTranscript.isEmpty
+                      ? currentWords
+                      : '$_savedTranscript $currentWords';
+                }
+                _currentSessionWords = '';
+              } else {
+                _currentSessionWords = currentWords;
+              }
+
+              _transcript = _savedTranscript.trim();
+              if (_currentSessionWords.isNotEmpty) {
+                _transcript = _transcript.isEmpty
+                    ? _currentSessionWords
+                    : '$_transcript $_currentSessionWords';
+              }
+              _scrollToBottom();
             });
           },
           localeId: settings.language == 'id' ? 'id_ID' : 'en_US',
@@ -189,17 +264,30 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
     }
   }
 
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
   void _clear() {
     setState(() {
       _transcript = '';
       _savedTranscript = '';
+      _currentSessionWords = '';
       _interim = '';
     });
   }
 
   void _saveAsNote() {
     final l10n = AppLocalizations.of(context)!;
-    final text = '$_transcript $_interim'.trim();
+    final text = _transcript.trim();
     if (text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.nothingToSave)),
@@ -283,7 +371,6 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
 
         // Transcript display box
         Container(
-          constraints: const BoxConstraints(minHeight: 140),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: isDark ? AppColors.surface : Colors.white,
@@ -305,28 +392,39 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
                 ),
               ),
               const SizedBox(height: 8),
-              if (_transcript.isEmpty && _interim.isEmpty)
-                Text(
-                  l10n.wordsAppearHere,
-                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13),
-                )
-              else
-                RichText(
-                  text: TextSpan(
-                    style: theme.textTheme.bodyLarge?.copyWith(fontSize: 13.5),
-                    children: [
-                      TextSpan(text: '$_transcript '),
-                      if (_interim.isNotEmpty)
-                        TextSpan(
-                          text: _interim,
-                          style: const TextStyle(
-                            fontStyle: FontStyle.italic,
-                            color: AppColors.textMuted,
+              SizedBox(
+                height: 160,
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  physics: const BouncingScrollPhysics(),
+                  child: _transcript.isEmpty
+                      ? Text(
+                          l10n.wordsAppearHere,
+                          style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13),
+                        )
+                      : RichText(
+                          text: TextSpan(
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: isDark ? Colors.white : Colors.black87,
+                              fontSize: 13.5,
+                              height: 1.5,
+                            ),
+                            children: [
+                              if (_savedTranscript.isNotEmpty)
+                                TextSpan(text: '$_savedTranscript '),
+                              if (_currentSessionWords.isNotEmpty)
+                                TextSpan(
+                                  text: _currentSessionWords,
+                                  style: const TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                    color: AppColors.textMuted,
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
-                    ],
-                  ),
                 ),
+              ),
             ],
           ),
         ),
