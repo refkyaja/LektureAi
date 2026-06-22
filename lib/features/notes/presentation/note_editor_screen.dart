@@ -169,11 +169,21 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
 
   Future<void> _saveNote() async {
     _debounceTimer?.cancel();
+    final titleText = _titleController.text.trim();
+    final bodyText = _bodyController.text.trim();
+
+    if (titleText.isEmpty && bodyText.isEmpty) {
+      if (!_isNew) {
+        await ref.read(notesProvider.notifier).deleteNote(_id);
+      }
+      return;
+    }
+
     final now = DateTime.now().millisecondsSinceEpoch;
     final l10n = AppLocalizations.of(context)!;
     final note = Note(
       id: _id,
-      title: _titleController.text.trim().isEmpty ? l10n.untitled : _titleController.text.trim(),
+      title: titleText.isEmpty ? l10n.untitled : titleText,
       body: _bodyController.text,
       tag: _selectedTag,
       createdAt: _isNew ? now : ref.read(notesProvider).firstWhere((n) => n.id == _id).createdAt,
@@ -529,25 +539,41 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                             ),
                           )
                         else
-                          OutlinedButton.icon(
-                            onPressed: () {
+                          InkWell(
+                            onTap: () {
                               setState(() {
                                 _isAddingTag = true;
                               });
                             },
-                            icon: const Icon(Icons.add_rounded, size: 12),
-                            label: Text(l10n.tagOption, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(
-                                color: isDark ? Colors.white.withOpacity(0.15) : Colors.black.withOpacity(0.15),
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              foregroundColor: isDark ? AppColors.textMuted : Colors.black54,
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: isDark ? Colors.white.withOpacity(0.15) : Colors.black.withOpacity(0.15),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.add_rounded,
+                                    size: 12,
+                                    color: isDark ? AppColors.textMuted : Colors.black54,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    l10n.tagOption,
+                                    style: TextStyle(
+                                      color: isDark ? AppColors.textMuted : Colors.black54,
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                       ],

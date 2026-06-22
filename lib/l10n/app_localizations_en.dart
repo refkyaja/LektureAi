@@ -748,4 +748,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selected => 'selected';
+
+  @override
+  String get generatingQuiz => 'Generating quiz...';
+
+  @override
+  String get generatingFlashcard => 'Generating flashcards...';
+
+  @override
+  String get quizGeneratedSuccess => 'Quiz successfully created';
+
+  @override
+  String get flashcardGeneratedSuccess => 'Flashcards successfully created';
+
+  @override
+  String quizGenerationFailed(String error) {
+    return 'Failed to generate quiz: $error';
+  }
+
+  @override
+  String flashcardGenerationFailed(String error) {
+    return 'Failed to generate flashcards: $error';
+  }
 }

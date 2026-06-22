@@ -1,10 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
+import 'package:lekture_ai/l10n/app_localizations.dart';
 import '../services/local_storage_service.dart';
 import '../services/ai_service.dart';
 import '../../../features/notes/domain/note_model.dart';
 import '../../../features/profile/domain/profile_model.dart';
 import '../../../features/study/domain/study_model.dart';
 import '../../../features/chat/domain/chat_model.dart';
+
+final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 // --- Services ---
 final localStorageServiceProvider = Provider<LocalStorageService>((ref) {
@@ -286,3 +291,121 @@ final activeChatSessionIdProvider = StateProvider<String?>((ref) => null);
 
 // --- Bottom Navigation Hide/Show State ---
 final hideNavbarProvider = StateProvider<bool>((ref) => false);
+
+// --- Background Study Set Generation ---
+class PendingGeneration {
+  final String id;
+  final String noteId;
+  final String noteTitle;
+  final String kind; // 'quiz' or 'flash'
+  final int count;
+  final String? difficulty; // only for quiz
+  final int createdAt;
+
+  PendingGeneration({
+    required this.id,
+    required this.noteId,
+    required this.noteTitle,
+    required this.kind,
+    required this.count,
+    this.difficulty,
+    required this.createdAt,
+  });
+}
+
+final pendingGenerationsProvider = StateNotifierProvider<PendingGenerationsNotifier, List<PendingGeneration>>((ref) {
+  return PendingGenerationsNotifier(ref);
+});
+
+class PendingGenerationsNotifier extends StateNotifier<List<PendingGeneration>> {
+  final Ref _ref;
+  PendingGenerationsNotifier(this._ref) : super([]);
+
+  Future<void> startGeneration({
+    required String noteId,
+    required String noteTitle,
+    required String noteBody,
+    required String kind,
+    required int count,
+    String? difficulty,
+    required AppLocalizations l10n,
+  }) async {
+    final genId = const Uuid().v4();
+    final item = PendingGeneration(
+      id: genId,
+      noteId: noteId,
+      noteTitle: noteTitle.isEmpty ? l10n.untitled : noteTitle,
+      kind: kind,
+      count: count,
+      difficulty: difficulty,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+    );
+
+    state = [...state, item];
+
+    try {
+      final ai = _ref.read(aiServiceProvider);
+      
+      if (kind == 'quiz') {
+        final result = await ai.generateQuiz(
+          noteBody,
+          count: count,
+          difficulty: difficulty ?? 'medium',
+        );
+
+        if (result.isEmpty) {
+          throw Exception("AI did not return any questions.");
+        }
+
+        final historyItem = StudyHistoryItem(
+          id: genId,
+          kind: 'quiz',
+          noteId: noteId,
+          noteTitle: noteTitle.isEmpty ? l10n.untitled : noteTitle,
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          questions: result,
+        );
+
+        await _ref.read(studyHistoryProvider.notifier).addHistoryItem(historyItem);
+        _showSnackBar(l10n.quizGeneratedSuccess);
+      } else {
+        final result = await ai.generateFlashcards(
+          noteBody,
+          count: count,
+        );
+
+        if (result.isEmpty) {
+          throw Exception("AI did not return any cards.");
+        }
+
+        final historyItem = StudyHistoryItem(
+          id: genId,
+          kind: 'flash',
+          noteId: noteId,
+          noteTitle: noteTitle.isEmpty ? l10n.untitled : noteTitle,
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          cards: result,
+        );
+
+        await _ref.read(studyHistoryProvider.notifier).addHistoryItem(historyItem);
+        _showSnackBar(l10n.flashcardGeneratedSuccess);
+      }
+    } catch (e) {
+      final errorStr = e.toString().replaceFirst('Exception: ', '');
+      if (kind == 'quiz') {
+        _showSnackBar(l10n.quizGenerationFailed(errorStr));
+      } else {
+        _showSnackBar(l10n.flashcardGenerationFailed(errorStr));
+      }
+    } finally {
+      state = state.where((x) => x.id != genId).toList();
+    }
+  }
+
+  void _showSnackBar(String message) {
+    scaffoldMessengerKey.currentState?.clearSnackBars();
+    scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+}

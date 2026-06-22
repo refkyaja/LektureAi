@@ -48,12 +48,15 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
   @override
   Widget build(BuildContext context) {
     final history = ref.watch(studyHistoryProvider);
+    final pending = ref.watch(pendingGenerationsProvider);
     final notes = ref.watch(notesProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
 
     final filteredHistory = history.where((h) => h.kind == _mode).toList();
+    final filteredPending = pending.where((p) => p.kind == _mode).toList();
+    final isEmpty = filteredHistory.isEmpty && filteredPending.isEmpty;
 
     return Scaffold(
       appBar: AppHeader(title: l10n.study),
@@ -192,7 +195,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
 
           // History header list
           Expanded(
-            child: filteredHistory.isEmpty
+            child: isEmpty
                 ? _buildEmptyState(context)
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -212,11 +215,16 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
                       Expanded(
                         child: ListView.separated(
                           padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 130),
-                          itemCount: filteredHistory.length,
+                          itemCount: filteredPending.length + filteredHistory.length,
                           separatorBuilder: (context, index) => const SizedBox(height: 10),
                           itemBuilder: (context, index) {
-                            final item = filteredHistory[index];
-                            return _buildHistoryCard(context, item);
+                            if (index < filteredPending.length) {
+                              final item = filteredPending[index];
+                              return _buildLoadingCard(context, item);
+                            } else {
+                              final item = filteredHistory[index - filteredPending.length];
+                              return _buildHistoryCard(context, item);
+                            }
                           },
                         ),
                       ),
@@ -323,6 +331,78 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
     );
   }
 
+  Widget _buildLoadingCard(BuildContext context, PendingGeneration item) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final isQuiz = item.kind == 'quiz';
+    final l10n = AppLocalizations.of(context)!;
+
+    return PulsingWidget(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surface : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: (isQuiz ? AppColors.success : AppColors.secondary).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          isQuiz ? l10n.quiz : l10n.flashcards,
+                          style: TextStyle(
+                            color: isQuiz ? AppColors.success : AppColors.secondary,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    item.noteTitle,
+                    style: theme.textTheme.titleMedium?.copyWith(fontSize: 15),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    isQuiz ? l10n.generatingQuiz : l10n.generatingFlashcard,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 10.5,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildEmptyState(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
@@ -364,17 +444,17 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
 }
 
 // Generate Sheet modal
-class GenerateStudySheet extends StatefulWidget {
+class GenerateStudySheet extends ConsumerStatefulWidget {
   final String mode;
   final List<Note> notes;
 
   const GenerateStudySheet({super.key, required this.mode, required this.notes});
 
   @override
-  State<GenerateStudySheet> createState() => _GenerateStudySheetState();
+  ConsumerState<GenerateStudySheet> createState() => _GenerateStudySheetState();
 }
 
-class _GenerateStudySheetState extends State<GenerateStudySheet> {
+class _GenerateStudySheetState extends ConsumerState<GenerateStudySheet> {
   late String _selectedNoteId;
   late int _count;
   String _difficulty = 'medium';
@@ -564,11 +644,15 @@ class _GenerateStudySheetState extends State<GenerateStudySheet> {
                 ? null
                 : () {
                     Navigator.pop(context); // Close bottom sheet
-                    if (widget.mode == 'quiz') {
-                      context.push('/study/quiz?noteId=$_selectedNoteId&count=$_count&difficulty=$_difficulty');
-                    } else {
-                      context.push('/study/flashcard?noteId=$_selectedNoteId&count=$_count');
-                    }
+                    ref.read(pendingGenerationsProvider.notifier).startGeneration(
+                      noteId: _selectedNoteId,
+                      noteTitle: note.title,
+                      noteBody: note.body,
+                      kind: widget.mode,
+                      count: _count,
+                      difficulty: widget.mode == 'quiz' ? _difficulty : null,
+                      l10n: l10n,
+                    );
                   },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -581,6 +665,41 @@ class _GenerateStudySheetState extends State<GenerateStudySheet> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class PulsingWidget extends StatefulWidget {
+  final Widget child;
+  const PulsingWidget({super.key, required this.child});
+
+  @override
+  State<PulsingWidget> createState() => _PulsingWidgetState();
+}
+
+class _PulsingWidgetState extends State<PulsingWidget> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0.4, end: 1.0).animate(_controller),
+      child: widget.child,
     );
   }
 }

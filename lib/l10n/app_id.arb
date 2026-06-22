@@ -362,5 +362,25 @@
     }
   },
   "selectAll": "Pilih Semua",
-  "selected": "terpilih"
+  "selected": "terpilih",
+  "generatingQuiz": "Membuat kuis...",
+  "generatingFlashcard": "Membuat kartu flash...",
+  "quizGeneratedSuccess": "Kuis selesai dibuat",
+  "flashcardGeneratedSuccess": "Kartu flash selesai dibuat",
+  "quizGenerationFailed": "Gagal membuat kuis: {error}",
+  "@quizGenerationFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "flashcardGenerationFailed": "Gagal membuat kartu flash: {error}",
+  "@flashcardGenerationFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

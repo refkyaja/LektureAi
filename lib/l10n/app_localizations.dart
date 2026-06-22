@@ -1495,6 +1495,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'selected'**
   String get selected;
+
+  /// No description provided for @generatingQuiz.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating quiz...'**
+  String get generatingQuiz;
+
+  /// No description provided for @generatingFlashcard.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating flashcards...'**
+  String get generatingFlashcard;
+
+  /// No description provided for @quizGeneratedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz successfully created'**
+  String get quizGeneratedSuccess;
+
+  /// No description provided for @flashcardGeneratedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Flashcards successfully created'**
+  String get flashcardGeneratedSuccess;
+
+  /// No description provided for @quizGenerationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to generate quiz: {error}'**
+  String quizGenerationFailed(String error);
+
+  /// No description provided for @flashcardGenerationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to generate flashcards: {error}'**
+  String flashcardGenerationFailed(String error);
 }
 
 class _AppLocalizationsDelegate

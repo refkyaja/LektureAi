@@ -249,22 +249,24 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
       pageBuilder: (ctx, anim1, anim2) {
         return Align(
           alignment: Alignment.centerRight,
-          child: Container(
-            width: MediaQuery.of(ctx).size.width * 0.78,
-            height: MediaQuery.of(ctx).size.height,
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.surface : Colors.white,
-              borderRadius:
-                  const BorderRadius.horizontal(left: Radius.circular(24)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 30,
-                  offset: const Offset(-5, 0),
-                ),
-              ],
-            ),
-            child: SafeArea(
+          child: Material(
+            type: MaterialType.transparency,
+            child: Container(
+              width: MediaQuery.of(ctx).size.width * 0.78,
+              height: MediaQuery.of(ctx).size.height,
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.surface : Colors.white,
+                borderRadius:
+                    const BorderRadius.horizontal(left: Radius.circular(24)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 30,
+                    offset: const Offset(-5, 0),
+                  ),
+                ],
+              ),
+              child: SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -363,9 +365,10 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
               ),
             ),
           ),
-        );
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        ),
+      );
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
         return SlideTransition(
           position: Tween<Offset>(
             begin: const Offset(1, 0),
@@ -846,6 +849,56 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
     );
   }
 
+  Widget _buildTitleRow(Note note, bool compact, AppLocalizations l10n, bool isDark, bool isSelected) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_isSelectionMode) ...[
+          Icon(
+            isSelected
+                ? Icons.check_circle_rounded
+                : Icons.radio_button_unchecked_rounded,
+            color: isSelected ? AppColors.primary : Colors.grey,
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+        ],
+        Expanded(
+          child: Text(
+            note.title.isEmpty ? l10n.untitled : note.title,
+            maxLines: compact ? 1 : 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 15.5,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black87,
+              height: 1.25,
+            ),
+          ),
+        ),
+        if (!_isSelectionMode && note.isPinned) ...[
+          const SizedBox(width: 6),
+          const Icon(
+            Icons.push_pin_rounded,
+            size: 13,
+            color: AppColors.primary,
+          ),
+        ],
+        if (!_isSelectionMode) ...[
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: () => _showNoteSideModal(note),
+            child: Icon(
+              Icons.more_vert_rounded,
+              size: 16,
+              color: isDark ? Colors.white30 : Colors.black26,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _buildNoteCard(BuildContext context, Note note, bool compact) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -904,73 +957,47 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+            if (_isGridView) ...[
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (_isSelectionMode) ...[
-                      Icon(
-                        isSelected
-                            ? Icons.check_circle_rounded
-                            : Icons.radio_button_unchecked_rounded,
-                        color: isSelected ? AppColors.primary : Colors.grey,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    Expanded(
-                      child: Text(
-                        note.title.isEmpty ? l10n.untitled : note.title,
-                        maxLines: compact ? 1 : 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 15.5,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black87,
-                          height: 1.25,
-                        ),
-                      ),
-                    ),
-                    if (!_isSelectionMode && note.isPinned) ...[
-                      const SizedBox(width: 6),
-                      const Icon(
-                        Icons.push_pin_rounded,
-                        size: 13,
-                        color: AppColors.primary,
-                      ),
-                    ],
-                    if (!_isSelectionMode) ...[
-                      const SizedBox(width: 4),
-                      GestureDetector(
-                        onTap: () => _showNoteSideModal(note),
-                        child: Icon(
-                          Icons.more_vert_rounded,
-                          size: 16,
-                          color: isDark ? Colors.white30 : Colors.black26,
+                    _buildTitleRow(note, compact, l10n, isDark, isSelected),
+                    if (!compact) ...[
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: Text(
+                          previewText,
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            color: isDark ? Colors.white60 : Colors.black54,
+                            height: 1.45,
+                          ),
                         ),
                       ),
                     ],
                   ],
                 ),
-                if (!compact) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    previewText,
-                    maxLines: _isGridView ? 4 : 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      color: isDark ? Colors.white60 : Colors.black54,
-                      height: 1.45,
-                    ),
+              ),
+            ] else ...[
+              _buildTitleRow(note, compact, l10n, isDark, isSelected),
+              if (!compact) ...[
+                const SizedBox(height: 8),
+                Text(
+                  previewText,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: isDark ? Colors.white60 : Colors.black54,
+                    height: 1.45,
                   ),
-                ],
+                ),
               ],
-            ),
+            ],
             const SizedBox(height: 12),
             Text(
               dateText,

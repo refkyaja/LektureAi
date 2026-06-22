@@ -362,5 +362,25 @@
     }
   },
   "selectAll": "Select All",
-  "selected": "selected"
+  "selected": "selected",
+  "generatingQuiz": "Generating quiz...",
+  "generatingFlashcard": "Generating flashcards...",
+  "quizGeneratedSuccess": "Quiz successfully created",
+  "flashcardGeneratedSuccess": "Flashcards successfully created",
+  "quizGenerationFailed": "Failed to generate quiz: {error}",
+  "@quizGenerationFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "flashcardGenerationFailed": "Failed to generate flashcards: {error}",
+  "@flashcardGenerationFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

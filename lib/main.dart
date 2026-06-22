@@ -51,6 +51,7 @@ class MyApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
+      scaffoldMessengerKey: scaffoldMessengerKey,
       title: 'Lekture AI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,

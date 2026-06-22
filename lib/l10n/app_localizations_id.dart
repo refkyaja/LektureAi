@@ -752,4 +752,26 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get selected => 'terpilih';
+
+  @override
+  String get generatingQuiz => 'Membuat kuis...';
+
+  @override
+  String get generatingFlashcard => 'Membuat kartu flash...';
+
+  @override
+  String get quizGeneratedSuccess => 'Kuis selesai dibuat';
+
+  @override
+  String get flashcardGeneratedSuccess => 'Kartu flash selesai dibuat';
+
+  @override
+  String quizGenerationFailed(String error) {
+    return 'Gagal membuat kuis: $error';
+  }
+
+  @override
+  String flashcardGenerationFailed(String error) {
+    return 'Gagal membuat kartu flash: $error';
+  }
 }

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:lekture_ai/l10n/app_localizations.dart';
@@ -520,7 +521,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           return _buildTypingIndicator();
                         }
                         final msg = msgs[index];
-                        return _buildChatBubble(context, msg);
+                        return _buildChatBubble(context, msg, index);
                       },
                     ),
             ),
@@ -545,45 +546,167 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _buildChatBubble(BuildContext context, ChatMessage msg) {
+  Widget _buildChatBubble(BuildContext context, ChatMessage msg, int index) {
     final theme = Theme.of(context);
     final isUser = msg.role == 'user';
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isUser
-              ? AppColors.primary
-              : (isDark ? AppColors.surface : Colors.grey[200]),
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
-            bottomLeft: Radius.circular(isUser ? 16 : 4),
-            bottomRight: Radius.circular(isUser ? 4 : 16),
+      child: Column(
+        crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: isUser
+                  ? AppColors.primary
+                  : (isDark ? AppColors.surface : Colors.grey[200]),
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(16),
+                topRight: const Radius.circular(16),
+                bottomLeft: Radius.circular(isUser ? 16 : 4),
+                bottomRight: Radius.circular(isUser ? 4 : 16),
+              ),
+              border: isUser
+                  ? null
+                  : Border.all(
+                      color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+                    ),
+            ),
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.8,
+            ),
+            child: Text(
+              msg.content,
+              style: TextStyle(
+                fontSize: 13.5,
+                height: 1.45,
+                color: isUser ? Colors.white : (isDark ? AppColors.text : Colors.black87),
+              ),
+            ),
           ),
-          border: isUser
-              ? null
-              : Border.all(
-                  color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
-                ),
-        ),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.8,
-        ),
-        child: Text(
-          msg.content,
-          style: TextStyle(
-            fontSize: 13.5,
-            height: 1.45,
-            color: isUser ? Colors.white : (isDark ? AppColors.text : Colors.black87),
-          ),
-        ),
+          if (!isUser) ...[
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 12),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: msg.content));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.copyText)),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      child: Row(
+                        children: [
+                          Icon(Icons.copy_rounded, size: 13, color: isDark ? AppColors.textMuted : Colors.black54),
+                          const SizedBox(width: 4),
+                          Text(
+                            l10n.copyText,
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              color: isDark ? AppColors.textMuted : Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  InkWell(
+                    onTap: () => _retryMessage(index),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      child: Row(
+                        children: [
+                          Icon(Icons.refresh_rounded, size: 13, color: isDark ? AppColors.textMuted : Colors.black54),
+                          const SizedBox(width: 4),
+                          Text(
+                            l10n.tryAgain,
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              color: isDark ? AppColors.textMuted : Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ] else ...[
+            const SizedBox(height: 8),
+          ],
+        ],
       ),
     );
+  }
+
+  Future<void> _retryMessage(int index) async {
+    if (_isSending) return;
+
+    final activeSessionId = ref.read(activeChatSessionIdProvider);
+    if (activeSessionId == null) return;
+
+    final sessions = ref.read(chatSessionsProvider);
+    final activeSession = sessions.firstWhere(
+      (s) => s.id == activeSessionId,
+      orElse: () => ChatSession(id: '', title: '', updatedAt: 0, messages: [], noteIds: []),
+    );
+
+    if (activeSession.id.isEmpty) return;
+
+    final msgs = activeSession.messages;
+    if (index < 0 || index >= msgs.length) return;
+
+    final history = msgs.sublist(0, index);
+    final truncatedMsgs = List<ChatMessage>.from(history);
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final updatedSession = activeSession.copyWith(
+      messages: truncatedMsgs,
+      updatedAt: now,
+    );
+    await ref.read(chatSessionsProvider.notifier).saveSession(updatedSession);
+
+    setState(() => _isSending = true);
+    _scrollToBottom();
+
+    final ai = ref.read(aiServiceProvider);
+    final l10n = AppLocalizations.of(context)!;
+
+    try {
+      final response = await ai.tutorChat(truncatedMsgs);
+      final newMsgAssistant = ChatMessage(role: 'assistant', content: response);
+
+      final currentSessions = ref.read(chatSessionsProvider);
+      final activeSessObj = currentSessions.firstWhere((s) => s.id == activeSessionId);
+      final finalSession = activeSessObj.copyWith(
+        messages: [...activeSessObj.messages, newMsgAssistant],
+        updatedAt: DateTime.now().millisecondsSinceEpoch,
+      );
+      await ref.read(chatSessionsProvider.notifier).saveSession(finalSession);
+    } catch (e) {
+      final errorMsg = ChatMessage(role: 'assistant', content: '${l10n.errorOccurred}: ${e.toString().replaceFirst("Exception: ", "")}');
+      final currentSessions = ref.read(chatSessionsProvider);
+      final activeSessObj = currentSessions.firstWhere((s) => s.id == activeSessionId);
+      final errorSession = activeSessObj.copyWith(
+        messages: [...activeSessObj.messages, errorMsg],
+      );
+      await ref.read(chatSessionsProvider.notifier).saveSession(errorSession);
+    } finally {
+      setState(() => _isSending = false);
+      _scrollToBottom();
+    }
   }
 
   Widget _buildTypingIndicator() {

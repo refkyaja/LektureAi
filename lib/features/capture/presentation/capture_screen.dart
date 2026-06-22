@@ -134,6 +134,7 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
   final stt.SpeechToText _speech = stt.SpeechToText();
   bool _isListening = false;
   String _transcript = '';
+  String _savedTranscript = '';
   String _interim = '';
 
   void _toggleListening() async {
@@ -161,19 +162,24 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
       if (available) {
         setState(() {
           _isListening = true;
+          _savedTranscript = _transcript.trim();
           _interim = '';
         });
         final settings = ref.read(settingsProvider);
         _speech.listen(
           onResult: (result) {
             setState(() {
-              _transcript = result.recognizedWords;
+              _transcript = _savedTranscript.isEmpty
+                  ? result.recognizedWords
+                  : '$_savedTranscript ${result.recognizedWords}';
             });
           },
           localeId: settings.language == 'id' ? 'id_ID' : 'en_US',
           listenMode: stt.ListenMode.dictation,
           cancelOnError: false,
           partialResults: true,
+          listenFor: const Duration(minutes: 20),
+          pauseFor: const Duration(seconds: 30),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -186,6 +192,7 @@ class _VoiceCaptureWidgetState extends ConsumerState<VoiceCaptureWidget> {
   void _clear() {
     setState(() {
       _transcript = '';
+      _savedTranscript = '';
       _interim = '';
     });
   }
